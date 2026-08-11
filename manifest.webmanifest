@@ -1,0 +1,16 @@
+{
+  "name": "Padel Arena Manager v11",
+  "short_name": "PAM v11",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#071421",
+  "theme_color": "#081827",
+  "icons": [
+    {
+      "src": "assets/padel-arena-manager.jpeg",
+      "sizes": "1280x1280",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}

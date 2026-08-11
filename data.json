@@ -1,0 +1,114 @@
+{
+  "appName": "Padel Arena Manager",
+  "version": "v11",
+  "centers": [
+    {
+      "id": "eden",
+      "name": "Eden Padel Club",
+      "logo": "assets/eden-padel-club.jpeg",
+      "affiliation": "AICS",
+      "affiliationLogo": "assets/aics.jpeg",
+      "modules": {
+        "home": true,
+        "play": true,
+        "courtBooking": true,
+        "openMatches": true,
+        "lessons": true,
+        "courses": true,
+        "events": true,
+        "membership": true
+      }
+    },
+    {
+      "id": "happy",
+      "name": "Happy Time",
+      "logo": "assets/happy-time.jpeg",
+      "affiliation": "AICS",
+      "affiliationLogo": "assets/aics.jpeg",
+      "modules": {
+        "home": true,
+        "play": false,
+        "courtBooking": false,
+        "openMatches": false,
+        "lessons": true,
+        "courses": true,
+        "events": true,
+        "membership": true
+      }
+    }
+  ],
+  "packages": [
+    {
+      "center": "eden",
+      "name": "10 INGRESSI GIOCO PADEL",
+      "description": "10 ingressi gioco padel a scalare",
+      "price": "100 €",
+      "uses": 10,
+      "expires": "31/10/2026"
+    },
+    {
+      "center": "eden",
+      "name": "CORSO JUNIOR",
+      "description": "10 lezioni ragazzi 6-16 anni",
+      "price": "95 €",
+      "uses": 10,
+      "expires": "31/10/2026"
+    },
+    {
+      "center": "eden",
+      "name": "CORSO PRINCIPIANTI",
+      "description": "12 lezioni di gruppo / partite didattiche",
+      "price": "150 €",
+      "uses": 12,
+      "expires": "31/10/2026"
+    },
+    {
+      "center": "eden",
+      "name": "5 LEZIONI X1",
+      "description": "Pacchetto individuale",
+      "price": "150 €",
+      "uses": 5,
+      "expires": "31/10/2026"
+    },
+    {
+      "center": "eden",
+      "name": "5 LEZIONI X2",
+      "description": "Pacchetto di coppia",
+      "price": "80 € / persona",
+      "uses": 5,
+      "expires": "31/10/2026"
+    },
+    {
+      "center": "eden",
+      "name": "1 INGRESSO",
+      "description": "Gioco padel",
+      "price": "12 €",
+      "uses": 1,
+      "expires": "31/10/2026"
+    },
+    {
+      "center": "eden",
+      "name": "1 LEZIONE X1",
+      "description": "Lezione singola",
+      "price": "35 €",
+      "uses": 1,
+      "expires": "31/10/2026"
+    },
+    {
+      "center": "eden",
+      "name": "1 LEZIONE X2",
+      "description": "Lezione di coppia",
+      "price": "25 € / persona",
+      "uses": 1,
+      "expires": "31/10/2026"
+    },
+    {
+      "center": "eden",
+      "name": "1 LEZIONE DI GRUPPO",
+      "description": "Lezione di gruppo",
+      "price": "15 € / persona",
+      "uses": 1,
+      "expires": "31/10/2026"
+    }
+  ]
+}
