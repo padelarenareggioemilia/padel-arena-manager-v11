@@ -1,78 +1,309 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Padel Arena Manager v11.3</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Padel Arena Manager v11.4</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(#04101a,#08243b 72%,#06131f);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select{font:inherit}button{cursor:pointer}.app{max-width:560px;margin:auto;padding:14px 14px 95px;min-height:100vh}
-.brand{display:flex;gap:13px;align-items:center}.brand img{width:70px;height:70px;border-radius:18px;object-fit:cover}.brand b{font-size:22px}.ver{color:#9bec37;font-weight:900}
-.card{background:#0b2235;border:1px solid #1d4a69;border-radius:20px;padding:15px;margin-top:10px}.muted{color:#9db4c5;font-size:13px}.tiny{font-size:12px}
-h2{font-size:20px;margin:22px 3px 10px}.page{display:none}.page.active{display:block}.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-label{display:block;color:#9db4c5;font-size:12px;margin:10px 0 5px}input,select{width:100%;background:#071a29;color:#fff;border:1px solid #2b5877;border-radius:12px;padding:11px}
-.primary,.btn{border-radius:12px;padding:10px 12px;font-weight:800}.primary{background:#9bec37;color:#092409;border:0}.btn{background:#12344e;color:#fff;border:1px solid #2d5c7c}
-.steps{display:flex;gap:6px;margin:8px 0 14px}.steps i{height:6px;flex:1;background:#17364d;border-radius:9px}.steps i.on{background:#9bec37}
-.club{display:flex;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #173950}.club img{width:60px;height:60px;object-fit:contain;background:#fff;border-radius:14px;padding:4px}.club>div{flex:1}
-.level{font-size:25px;font-weight:900;margin:7px 0}.badge{display:inline-block;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900}.self{background:#4b3a10;color:#ffd76e}.cert{background:#163b2a;color:#bff4ca}
-.teacher{margin-top:10px;background:#0d2a20;border:1px solid #25563d;border-radius:14px;padding:10px}.player{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid #173950}.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#173c58;font-weight:900}
-.top{display:flex;justify-content:space-between;align-items:center;gap:8px}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(560px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:#061522f2;border-top:1px solid #21445e;padding:9px 4px calc(8px + env(safe-area-inset-bottom))}
-.bottom button{background:none;border:0;color:#b0c2ce;font-size:11px}.aics{width:95px;max-height:45px;object-fit:contain;background:#fff;border-radius:8px;padding:4px}
+*{box-sizing:border-box}
+:root{--bg:#06131f;--panel:#0b2235;--line:#1d4a69;--text:#fff;--muted:#9db4c5;--green:#9bec37;--blue:#35b9ff;--yellow:#ffc548;--danger:#ff6b72}
+body{margin:0;background:linear-gradient(#04101a,#08243b 72%,#06131f);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:560px;margin:auto;min-height:100vh;padding:14px 14px 96px}
+.brand{display:flex;gap:13px;align-items:center;margin-bottom:12px}
+.brand img{width:70px;height:70px;border-radius:18px;object-fit:cover}
+.brand b{font-size:22px;line-height:1.05}
+.ver{color:var(--green);font-weight:900}
+.card{background:linear-gradient(150deg,#0d263a,#091b2a);border:1px solid var(--line);border-radius:20px;padding:15px;margin-top:10px;box-shadow:0 12px 30px #0003}
+h2{font-size:20px;margin:22px 3px 10px}
+.muted{color:var(--muted);font-size:13px}
+.tiny{font-size:12px}
+.page{display:none}
+.page.active{display:block}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+label{display:block;color:var(--muted);font-size:12px;margin:10px 0 5px}
+input,select{width:100%;background:#071a29;color:#fff;border:1px solid #2b5877;border-radius:12px;padding:11px}
+input[type=file]{padding:8px}
+.req:after{content:" *";color:var(--danger)}
+.primary,.btn{border-radius:12px;padding:10px 12px;font-weight:800}
+.primary{background:var(--green);color:#092409;border:0}
+.btn{background:#12344e;color:#fff;border:1px solid #2d5c7c}
+.steps{display:flex;gap:6px;margin:8px 0 14px}
+.steps i{height:6px;flex:1;background:#17364d;border-radius:9px}
+.steps i.on{background:var(--green)}
+.badge{display:inline-block;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900}
+.self{background:#4b3a10;color:#ffd76e}
+.cert{background:#163b2a;color:#bff4ca}
+.ok{background:#163b2a;color:#bff4ca}
+.warn{background:#4b3a10;color:#ffd76e}
+.level{font-size:25px;font-weight:900;margin:7px 0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.summary div{background:#0a1d2d;border:1px solid #173950;border-radius:12px;padding:10px}
+.photo-preview{width:90px;height:110px;border-radius:14px;border:1px dashed #3b6784;display:grid;place-items:center;color:var(--muted);overflow:hidden;background:#071a29}
+.photo-preview img{width:100%;height:100%;object-fit:cover}
+.teacher{margin-top:10px;background:#0d2a20;border:1px solid #25563d;border-radius:14px;padding:10px}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(560px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:#061522f2;border-top:1px solid #21445e;padding:9px 4px calc(8px + env(safe-area-inset-bottom))}
+.bottom button{background:none;border:0;color:#b0c2ce;font-size:11px}
+.aics{width:95px;max-height:45px;object-fit:contain;background:#fff;border-radius:8px;padding:4px}
+hr{border:0;border-top:1px solid #173950;margin:16px 0}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="brand"><img src="assets/pam.jpeg"><div><b>PADEL ARENA<br>MANAGER</b><div class="ver">v11.3</div></div></div>
+<div class="brand"><img src="assets/pam.jpeg"><div><b>PADEL ARENA<br>MANAGER</b><div class="ver">v11.4</div></div></div>
 
 <section id="signup" class="page active">
-<h2>Crea il tuo account</h2><div class="steps"><i class="on"></i><i></i><i></i></div>
+<h2>Crea il tuo account</h2>
+<div class="steps"><i class="on"></i><i></i><i></i><i></i></div>
 <div class="card">
-<div class="row"><div><label>Nome</label><input value="Luca"></div><div><label>Cognome</label><input value="Bianchi"></div></div>
-<label>Email</label><input value="luca@example.com"><label>Telefono</label><input value="+39 333 1234567"><label>Data di nascita</label><input type="date" value="1990-05-12"><label>Password</label><input type="password" value="password123">
-<p class="muted">Un unico account Padel Arena Manager per accedere a qualsiasi circolo presente sulla piattaforma.</p>
-<button class="primary" style="width:100%" onclick="go('level')">Continua</button>
-</div></section>
-
-<section id="level" class="page">
-<h2>Valutazione livello</h2><div class="steps"><i class="on"></i><i class="on"></i><i></i></div>
-<div class="card">
-<label>Da quanto tempo giochi?</label><select><option>Meno di 6 mesi</option><option>6-12 mesi</option><option>1-2 anni</option><option>Più di 2 anni</option></select>
-<label>Frequenza di gioco</label><select><option>Occasionale</option><option>1 volta a settimana</option><option>2-3 volte a settimana</option><option>4+ volte a settimana</option></select>
-<label>Servizio e risposta</label><select><option>Sto imparando</option><option>Abbastanza regolari</option><option>Regolari e controllati</option><option>Molto solidi</option></select>
-<label>Gioco a rete, bandeja e vibora</label><select><option>Quasi mai</option><option>In apprendimento</option><option>Abbastanza sicuri</option><option>Molto sicuri</option></select>
-<label>Livello risultante / autodichiarato</label>
-<select id="lv"><option>Principiante base</option><option>Principiante avanzato</option><option>Medio base</option><option selected>Intermedio</option><option>Intermedio avanzato</option><option>Avanzato</option></select>
-<p class="muted">Il livello iniziale viene mostrato come <b>autodichiarato</b>. Potrà essere certificato da un istruttore autorizzato.</p>
-<button class="primary" style="width:100%" onclick="go('clubs')">Salva e continua</button>
-</div></section>
-
-<section id="clubs" class="page">
-<h2>Club che segui</h2><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></div>
-<div class="card"><div class="top"><b>Scegli i club</b><img class="aics" src="assets/aics.jpeg"></div>
-<div class="club"><img src="assets/eden.jpeg"><div><b>Eden Padel Club</b><div class="muted">Reggio Emilia</div></div><button class="btn" onclick="this.textContent='Seguito'">Segui</button></div>
-<div class="club"><img src="assets/happy.jpeg"><div><b>Happy Time</b><div class="muted">Castellarano (RE)</div></div><button class="btn" onclick="this.textContent='Seguito'">Segui</button></div>
-<button class="primary" style="width:100%" onclick="finish()">Entra nella piattaforma</button></div></section>
-
-<section id="home" class="page">
-<div class="card"><div class="top"><div><b>Profilo giocatore</b><div class="muted">Account unico Padel Arena Manager</div></div><button class="btn" onclick="go('profile')">Apri</button></div>
-<div id="homeLv" class="level">Intermedio</div><span id="homeBadge" class="badge self">● Autodichiarato</span></div>
-<h2>Come appare agli altri giocatori</h2>
-<div class="card">
-<div class="player"><div class="avatar">LB</div><div><b>Luca Bianchi</b><div id="miniLv" class="muted">Intermedio</div><span id="miniBadge" class="badge self">Autodichiarato</span></div></div>
-<div class="player"><div class="avatar">MR</div><div><b>Marco Rossi</b><div class="muted">Intermedio avanzato</div><span class="badge cert">✓ Certificato</span><div class="muted tiny">da Andrea Verdi • Eden Padel Club</div></div></div>
-</div></section>
-
-<section id="profile" class="page">
-<div class="top"><h2>Profilo giocatore</h2><button class="btn" onclick="go('home')">← Home</button></div>
-<div class="card"><b>Luca Bianchi</b><p class="muted">luca@example.com • +39 333 1234567</p><div id="profileLv" class="level">Intermedio</div><span id="profileBadge" class="badge self">● Autodichiarato</span>
-<p class="muted">Finché è autodichiarato il giocatore può modificarlo. Quando viene certificato, la modifica passa a un istruttore autorizzato.</p>
-<button class="btn" onclick="certify()">Simula certificazione istruttore</button><div id="teacher"></div></div></section>
+<div class="row">
+<div><label class="req">Nome</label><input id="nome" value="Luca"></div>
+<div><label class="req">Cognome</label><input id="cognome" value="Bianchi"></div>
 </div>
 
-<nav class="bottom"><button onclick="go('home')">🏠<br>Home</button><button>📅<br>Attività</button><button>＋<br>Prenota</button><button>🔔<br>Avvisi</button><button onclick="go('profile')">👤<br>Profilo</button></nav>
+<div class="row">
+<div><label class="req">Data di nascita</label><input id="dataNascita" type="date" value="1990-05-12"></div>
+<div><label class="req">Luogo di nascita</label><input id="luogoNascita" value="Reggio Emilia"></div>
+</div>
+
+<label class="req">Comune di residenza</label>
+<input id="comuneResidenza" value="Reggio Emilia">
+
+<div class="row">
+<div><label class="req">CAP</label><input id="cap" inputmode="numeric" maxlength="5" value="42121"></div>
+<div><label class="req">Provincia</label><input id="provincia" maxlength="2" value="RE"></div>
+</div>
+
+<label class="req">Telefono</label>
+<input id="telefono" type="tel" value="+39 333 1234567">
+
+<label class="req">Email</label>
+<input id="email" type="email" value="luca@example.com">
+
+<label class="req">Password</label>
+<input id="password" type="password" value="password123">
+
+<hr>
+
+<div class="top">
+<div>
+<b>Fototessera</b>
+<div class="muted">Facoltativa. Puoi caricarla ora oppure in seguito dal profilo.</div>
+</div>
+<div id="photoPreview" class="photo-preview">Nessuna foto</div>
+</div>
+<input id="fototessera" type="file" accept="image/*" onchange="previewPhoto(event)">
+
+<p class="muted">Questi dati vengono salvati una sola volta nel tuo account Padel Arena Manager e possono essere riutilizzati per il tesseramento nei club aderenti.</p>
+<button class="primary" style="width:100%" onclick="validateAnagrafica()">Continua</button>
+</div>
+</section>
+
+<section id="level" class="page">
+<h2>Valutazione livello</h2>
+<div class="steps"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+<div class="card">
+<label>Da quanto tempo giochi?</label>
+<select><option>Meno di 6 mesi</option><option>6-12 mesi</option><option>1-2 anni</option><option>Più di 2 anni</option></select>
+
+<label>Frequenza di gioco</label>
+<select><option>Occasionale</option><option>1 volta a settimana</option><option>2-3 volte a settimana</option><option>4+ volte a settimana</option></select>
+
+<label>Servizio e risposta</label>
+<select><option>Sto imparando</option><option>Abbastanza regolari</option><option>Regolari e controllati</option><option>Molto solidi</option></select>
+
+<label>Gioco a rete, bandeja e vibora</label>
+<select><option>Quasi mai</option><option>In apprendimento</option><option>Abbastanza sicuri</option><option>Molto sicuri</option></select>
+
+<label>Livello risultante / autodichiarato</label>
+<select id="lv">
+<option>Principiante base</option>
+<option>Principiante avanzato</option>
+<option>Medio base</option>
+<option selected>Intermedio</option>
+<option>Intermedio avanzato</option>
+<option>Avanzato</option>
+</select>
+
+<p class="muted">Il livello iniziale viene mostrato come <b>autodichiarato</b>. Un istruttore autorizzato potrà certificarlo indicando anche nome e club.</p>
+<button class="primary" style="width:100%" onclick="go('tesseramento')">Salva e continua</button>
+</div>
+</section>
+
+<section id="tesseramento" class="page">
+<h2>Dati per il tesseramento</h2>
+<div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+
+<div class="card">
+<div class="top">
+<div>
+<b>Profilo pronto per il tesseramento</b>
+<div class="muted">I dati inseriti nell'account vengono riutilizzati automaticamente.</div>
+</div>
+<img class="aics" src="assets/aics.jpeg">
+</div>
+
+<div class="summary">
+<div><span class="muted tiny">Nome e cognome</span><br><b id="sumNome"></b></div>
+<div><span class="muted tiny">Data di nascita</span><br><b id="sumData"></b></div>
+<div><span class="muted tiny">Luogo di nascita</span><br><b id="sumLuogo"></b></div>
+<div><span class="muted tiny">Residenza</span><br><b id="sumResidenza"></b></div>
+<div><span class="muted tiny">Telefono</span><br><b id="sumTelefono"></b></div>
+<div><span class="muted tiny">Email</span><br><b id="sumEmail"></b></div>
+</div>
+
+<p><span class="badge ok">✓ Dati obbligatori completi</span></p>
+<p id="photoStatus"><span class="badge warn">Fototessera non caricata</span></p>
+
+<p class="muted">Quando richiederai il tesseramento in un club, non dovrai ricompilare questi dati. Il club potrà usarli per la pratica di tesseramento.</p>
+<button class="primary" style="width:100%" onclick="go('clubs')">Continua</button>
+</div>
+</section>
+
+<section id="clubs" class="page">
+<h2>Scegli i club che segui</h2>
+<div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+<div class="card">
+<div class="top"><b>Club disponibili</b><img class="aics" src="assets/aics.jpeg"></div>
+<div class="summary">
+<div><img src="assets/eden.jpeg" style="width:100%;height:80px;object-fit:contain;background:#fff;border-radius:10px;padding:4px"><b>Eden Padel Club</b><br><button class="btn" style="margin-top:8px;width:100%" onclick="this.textContent='Seguito'">Segui</button></div>
+<div><img src="assets/happy.jpeg" style="width:100%;height:80px;object-fit:contain;background:#fff;border-radius:10px;padding:4px"><b>Happy Time</b><br><button class="btn" style="margin-top:8px;width:100%" onclick="this.textContent='Seguito'">Segui</button></div>
+</div>
+<button class="primary" style="width:100%;margin-top:10px" onclick="finish()">Entra in Padel Arena Manager</button>
+</div>
+</section>
+
+<section id="home" class="page">
+<div class="card">
+<div class="top">
+<div><b>Profilo giocatore</b><div class="muted">Account unico Padel Arena Manager</div></div>
+<button class="btn" onclick="go('profile')">Apri</button>
+</div>
+<div id="homeLv" class="level">Intermedio</div>
+<span id="homeBadge" class="badge self">● Autodichiarato</span>
+</div>
+
+<h2>Tesseramento</h2>
+<div class="card">
+<div class="top">
+<div><b>Dati anagrafici completi</b><div class="muted">Pronti per il tesseramento nei club aderenti</div></div>
+<img class="aics" src="assets/aics.jpeg">
+</div>
+<p><span class="badge ok">✓ Profilo pronto</span></p>
+<button class="btn" onclick="go('profile')">Vedi dati profilo</button>
+</div>
+</section>
+
+<section id="profile" class="page">
+<div class="top"><h2>Profilo</h2><button class="btn" onclick="go('home')">← Home</button></div>
+
+<div class="card">
+<div class="top">
+<div><b id="profileName">Luca Bianchi</b><div class="muted">Account Padel Arena Manager</div></div>
+<div id="profilePhoto" class="photo-preview">Foto</div>
+</div>
+
+<h2 style="margin-top:16px">Anagrafica</h2>
+<div class="summary">
+<div><span class="muted tiny">Data e luogo di nascita</span><br><b id="profBirth"></b></div>
+<div><span class="muted tiny">Residenza</span><br><b id="profResidence"></b></div>
+<div><span class="muted tiny">Telefono</span><br><b id="profPhone"></b></div>
+<div><span class="muted tiny">Email</span><br><b id="profEmail"></b></div>
+</div>
+
+<h2 style="margin-top:16px">Livello</h2>
+<div id="profileLv" class="level">Intermedio</div>
+<span id="profileBadge" class="badge self">● Autodichiarato</span>
+<p class="muted">Il livello può essere modificato dal giocatore finché resta autodichiarato. Se viene certificato, solo un istruttore autorizzato potrà modificarlo.</p>
+<button class="btn" onclick="certify()">Simula certificazione istruttore</button>
+<div id="teacher"></div>
+</div>
+</section>
+</div>
+
+<nav class="bottom">
+<button onclick="go('home')">🏠<br>Home</button>
+<button>📅<br>Attività</button>
+<button>＋<br>Prenota</button>
+<button>🔔<br>Avvisi</button>
+<button onclick="go('profile')">👤<br>Profilo</button>
+</nav>
 
 <script>
-function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');scrollTo(0,0)}
-function finish(){let l=document.getElementById('lv').value;homeLv.textContent=l;profileLv.textContent=l;miniLv.textContent=l;go('home')}
-function certify(){[homeBadge,profileBadge,miniBadge].forEach(x=>{x.textContent='✓ Certificato';x.className='badge cert'});teacher.innerHTML='<div class="teacher"><b>Certificazione livello</b><div class="muted">Certificato da Andrea Verdi • Eden Padel Club<br>Valutazione del 16/08/2026</div></div>'}
+let photoData=null;
+
+function go(id){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function previewPhoto(ev){
+  const file=ev.target.files[0];
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    photoData=e.target.result;
+    photoPreview.innerHTML='<img src="'+photoData+'">';
+  };
+  r.readAsDataURL(file);
+}
+
+function validateAnagrafica(){
+  const ids=['nome','cognome','dataNascita','luogoNascita','comuneResidenza','cap','provincia','telefono','email','password'];
+  const missing=ids.filter(id=>!document.getElementById(id).value.trim());
+  if(missing.length){
+    alert('Completa tutti i campi obbligatori prima di continuare.');
+    return;
+  }
+  if(cap.value.trim().length!==5){
+    alert('Il CAP deve contenere 5 cifre.');
+    return;
+  }
+  if(provincia.value.trim().length!==2){
+    alert('Inserisci la sigla della provincia di 2 lettere.');
+    return;
+  }
+  populateSummary();
+  go('level');
+}
+
+function populateSummary(){
+  sumNome.textContent=nome.value+' '+cognome.value;
+  sumData.textContent=dataNascita.value;
+  sumLuogo.textContent=luogoNascita.value;
+  sumResidenza.textContent=comuneResidenza.value+' • '+cap.value+' • '+provincia.value.toUpperCase();
+  sumTelefono.textContent=telefono.value;
+  sumEmail.textContent=email.value;
+  if(photoData){
+    photoStatus.innerHTML='<span class="badge ok">✓ Fototessera caricata</span>';
+  }
+}
+
+function finish(){
+  const l=lv.value;
+  homeLv.textContent=l;
+  profileLv.textContent=l;
+  profileName.textContent=nome.value+' '+cognome.value;
+  profBirth.textContent=dataNascita.value+' • '+luogoNascita.value;
+  profResidence.textContent=comuneResidenza.value+' • '+cap.value+' • '+provincia.value.toUpperCase();
+  profPhone.textContent=telefono.value;
+  profEmail.textContent=email.value;
+  if(photoData){
+    profilePhoto.innerHTML='<img src="'+photoData+'">';
+  }
+  go('home');
+}
+
+function certify(){
+  [homeBadge,profileBadge].forEach(x=>{
+    x.textContent='✓ Certificato';
+    x.className='badge cert';
+  });
+  teacher.innerHTML='<div class="teacher"><b>Certificazione livello</b><div class="muted">Certificato da Andrea Verdi • Eden Padel Club<br>Valutazione del 16/08/2026</div></div>';
+}
 </script>
-</body></html>
+</body>
+</html>
