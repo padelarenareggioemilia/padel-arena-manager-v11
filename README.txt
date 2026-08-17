@@ -1,1 +1,1 @@
-Padel Arena Manager v11.5 - tutte le funzioni definite finora integrate in un unico prototipo.
+Padel Arena Manager v11 - prototipo integrato Cliente + Gestionale con sincronizzazione demo via localStorage.
