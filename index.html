@@ -1,206 +1,56 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Padel Arena Manager v11</title>
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Padel Arena Manager v11</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(#04101a,#08243b 72%,#06131f);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{max-width:620px;margin:auto;padding:14px 14px 96px}.brand{display:flex;gap:12px;align-items:center}.brand img{width:66px;height:66px;border-radius:18px;object-fit:cover}.brand b{font-size:22px}.ver{color:#9bec37;font-weight:900}.switcher{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.switcher button{padding:11px;border-radius:14px;border:1px solid #28516d;background:#0b2639;color:#bdd0dc}.switcher .active{outline:2px solid #9bec37;color:#fff}.card,.tile{background:#0b2235;border:1px solid #1d4a69;border-radius:20px;padding:15px;margin-top:10px}.page{display:none}.page.active{display:block}.muted{color:#9db4c5;font-size:13px}.tiny{font-size:12px}h2{font-size:20px;margin:22px 3px 10px}.top{display:flex;justify-content:space-between;align-items:center;gap:8px}.btn,.primary,.danger{border-radius:12px;padding:9px 11px;font-weight:800}.btn{background:#12344e;color:#fff;border:1px solid #2d5c7c}.primary{background:#9bec37;color:#092409;border:0}.danger{background:#4a1d24;color:#ffd5d8;border:1px solid #74333b}.clubrow{display:flex;gap:11px;align-items:center;padding:11px 0;border-top:1px solid #173950}.clubrow img,.clubLogo{width:60px;height:60px;object-fit:contain;background:white;border-radius:14px;padding:4px}.clubrow>div{flex:1}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tile{text-align:left;color:#fff;min-height:118px}.tile strong{display:block;font-size:16px;margin:8px 0 4px}.ico{font-size:26px}.feed{display:grid;gap:9px}.feed .card{display:flex;align-items:center;gap:10px}.feed .card>div{flex:1}label{display:block;color:#9db4c5;font-size:12px;margin:10px 0 5px}input,select{width:100%;background:#071a29;color:#fff;border:1px solid #2b5877;border-radius:12px;padding:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px}.kpi{font-size:24px;font-weight:900}.planning{overflow:auto}.planning table{border-collapse:separate;border-spacing:5px;min-width:520px;width:100%}th,td{background:#0c2638;border-radius:10px;padding:9px 7px;text-align:center;font-size:12px}td.free{background:#153a2b}.activity{background:#173f5b!important}.blocked{background:#47272c!important}.actions{display:flex;gap:7px;margin-top:10px}.actions>*{flex:1}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(620px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:#061522f2;border-top:1px solid #21445e;padding:9px 4px calc(8px + env(safe-area-inset-bottom))}.bottom button{background:none;border:0;color:#b0c2ce;font-size:11px}
-.loginGate{position:fixed;inset:0;z-index:99;background:linear-gradient(#04101a,#08243b);display:grid;place-items:center;padding:18px}.loginBox{width:min(520px,100%);background:#0b2235;border:1px solid #1d4a69;border-radius:22px;padding:18px;box-shadow:0 20px 50px #0006}.loginRoles{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.loginRoles button{background:#102b42;border:1px solid #2d5c7c;color:#c9dbe7;border-radius:12px;padding:10px 5px}.loginRoles button.active{outline:2px solid #9bec37;color:#fff}.statusPending{background:#4b3a10!important}.statusRejected{background:#4a1d24!important}.statusApproved{background:#163b2a!important}.queueItem{align-items:flex-start!important}.queueActions{display:flex;gap:6px;flex-wrap:wrap}.queueActions button{padding:7px 9px}.instructorHeader{display:flex;align-items:center;justify-content:space-between;gap:10px}.roleName{color:#9bec37;font-weight:900}
-</style></head><body>
-<div id="loginGate" class="loginGate">
-  <div class="loginBox">
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#04101a,#08243b 72%,#06131f);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}.app{max-width:680px;margin:auto;padding:14px 14px 92px}.brand{display:flex;gap:12px;align-items:center}.brand img{width:64px;height:64px;border-radius:18px;object-fit:cover}.brand b{font-size:21px}.ver{color:#9bec37;font-weight:900}
+.card,.tile{background:#0b2235;border:1px solid #1d4a69;border-radius:20px;padding:15px;margin-top:10px}.muted{color:#9db4c5}.tiny{font-size:12px}h2{font-size:20px;margin:22px 3px 10px}.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.btn,.primary,.danger{border-radius:12px;padding:10px 12px;font-weight:800}.btn{background:#12344e;color:#fff;border:1px solid #2d5c7c}.primary{background:#9bec37;color:#092409;border:0}.danger{background:#4a1d24;color:#ffd5d8;border:1px solid #74333b}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tile{text-align:left;color:#fff;min-height:118px}.tile strong{display:block;font-size:16px;margin:8px 0 4px}.ico{font-size:25px}
+.clubrow{display:flex;gap:11px;align-items:center;padding:11px 0;border-top:1px solid #173950}.clubrow img,.clubLogo{width:58px;height:58px;object-fit:contain;background:#fff;border-radius:14px;padding:4px}.clubrow>div{flex:1}
+label{display:block;color:#9db4c5;font-size:12px;margin:10px 0 5px}input,select{width:100%;background:#071a29;color:#fff;border:1px solid #2b5877;border-radius:12px;padding:10px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.auth{min-height:100vh;display:grid;place-items:center;padding:18px}.authbox{width:min(540px,100%);background:#0b2235;border:1px solid #1d4a69;border-radius:24px;padding:18px;box-shadow:0 20px 50px #0008}.authTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0}.authTabs button.active{outline:2px solid #9bec37}
+.actions{display:flex;gap:8px;margin-top:10px}.actions>*{flex:1}.notice{border-left:4px solid #f1b84b}.ok{border-left:4px solid #64d28c}.bad{border-left:4px solid #df6672}.rolebadge{display:inline-block;padding:5px 8px;border-radius:999px;background:#143750;color:#bfe6ff;font-size:12px;font-weight:800}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(680px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#061522f2;border-top:1px solid #21445e;padding:9px 4px calc(8px + env(safe-area-inset-bottom));z-index:10}.bottom button{background:none;border:0;color:#b0c2ce;font-size:11px}
+.list{display:grid;gap:9px}.list .card{display:flex;justify-content:space-between;gap:10px;align-items:center}.kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px}.kpi{font-size:24px;font-weight:900}.previewbar{display:flex;gap:8px;overflow:auto;margin:10px 0}.previewbar button{white-space:nowrap}.sectionHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+@media(max-width:520px){.row{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="authView" class="auth">
+  <div class="authbox">
     <div class="brand"><img src="assets/pam.jpeg"><div><b>PADEL ARENA<br>MANAGER</b><div class="ver">v11</div></div></div>
     <h2>Accedi</h2>
-    <div class="muted tiny">Scegli il tuo ruolo. Nella demo le credenziali sono precompilate.</div>
-    <div class="loginRoles">
-      <button id="roleClient" class="active" onclick="chooseRole('client')">Cliente</button>
-      <button id="roleManager" onclick="chooseRole('manager')">Gestore</button>
-      <button id="roleInstructor" onclick="chooseRole('instructor')">Istruttore</button>
-    </div>
-    <label>Email</label><input id="loginEmail" value="cliente@demo.it">
-    <label>Password</label><input id="loginPassword" type="password" value="cliente123">
-    <button class="primary" style="width:100%;margin-top:12px" onclick="doLogin()">Entra</button>
-    <div id="loginHint" class="muted tiny" style="margin-top:10px">Demo Cliente: cliente@demo.it / cliente123</div>
+    <div class="muted">Un unico account per accedere ai circoli presenti nella piattaforma.</div>
+    <div class="authTabs"><button id="loginTab" class="btn active">Accedi</button><button id="registerTab" class="btn">Registrati</button></div>
+    <form id="loginForm">
+      <label>Email</label><input id="loginEmail" type="email" required autocomplete="email">
+      <label>Password</label><input id="loginPassword" type="password" required autocomplete="current-password">
+      <button class="primary" style="width:100%;margin-top:12px">Entra</button>
+      <button id="resetPasswordBtn" type="button" class="btn" style="width:100%;margin-top:8px">Password dimenticata</button>
+    </form>
+    <form id="registerForm" class="hidden">
+      <div class="row"><div><label>Nome *</label><input id="regFirstName" required></div><div><label>Cognome *</label><input id="regLastName" required></div></div>
+      <div class="row"><div><label>Data di nascita *</label><input id="regBirthDate" type="date" required></div><div><label>Luogo di nascita *</label><input id="regBirthPlace" required></div></div>
+      <div class="row"><div><label>Comune di residenza *</label><input id="regResidence" required></div><div><label>CAP *</label><input id="regCap" required inputmode="numeric"></div></div>
+      <div class="row"><div><label>Provincia *</label><input id="regProvince" required maxlength="2"></div><div><label>Telefono *</label><input id="regPhone" required inputmode="tel"></div></div>
+      <label>Email *</label><input id="regEmail" type="email" required>
+      <label>Password *</label><input id="regPassword" type="password" minlength="6" required>
+      <label>Livello *</label><select id="regLevel"><option>Principiante base</option><option>Principiante avanzato</option><option>Medio base</option><option>Intermedio</option><option>Intermedio avanzato</option><option>Avanzato</option></select>
+      <div class="muted tiny" style="margin-top:8px">Il livello iniziale sarà indicato come auto dichiarato. Un istruttore potrà certificarlo successivamente.</div>
+      <button class="primary" style="width:100%;margin-top:12px">Crea account cliente</button>
+    </form>
+    <div id="authMsg" class="muted tiny" style="margin-top:10px"></div>
   </div>
 </div>
-<div class="app">
-<div class="brand"><img src="assets/pam.jpeg"><div><b>PADEL ARENA<br>MANAGER</b><div class="ver">v11</div></div></div>
-<div class="switcher" style="grid-template-columns:repeat(3,1fr)">
-<button id="clientBtn" class="active" onclick="setMode('client')">Cliente</button>
-<button id="managerBtn" onclick="setMode('manager')">Gestionale</button>
-<button id="instructorBtn" onclick="setMode('instructor')">Istruttore</button>
+<div id="appView" class="app hidden">
+  <div class="top"><div class="brand"><img src="assets/pam.jpeg"><div><b>PADEL ARENA<br>MANAGER</b><div class="ver">v11</div></div></div><div style="text-align:right"><span id="roleBadge" class="rolebadge"></span><div id="userName" class="tiny muted" style="margin-top:5px"></div></div></div>
+  <div id="adminPreviewBar" class="previewbar hidden"></div>
+  <main id="main"></main>
 </div>
-
-<section id="client" class="page active"><div id="gateway" class="card"><div class="top"><div><b>Club che segui</b><div class="muted tiny">Apri un club per entrare nel suo ambiente</div></div><img src="assets/aics.jpeg" style="width:95px;background:#fff;border-radius:8px;padding:4px"></div>
-<div class="clubrow"><img src="assets/eden.jpeg"><div><b>Eden Padel Club</b><div class="muted tiny">Seguito • AICS</div></div><button class="btn" onclick="openClub('eden')">Apri</button></div>
-<div class="clubrow"><img src="assets/happy.jpeg"><div><b>Happy Time</b><div class="muted tiny">Seguito • AICS</div></div><button class="btn" onclick="openClub('happy')">Apri</button></div>
-<label>Cerca altri club</label><input placeholder="Cerca per nome o città"></div>
-<div id="clubView" style="display:none"><div class="card top"><div style="display:flex;gap:10px;align-items:center"><img id="clubLogo" class="clubLogo"><div><b id="clubName"></b><div class="muted tiny">Club aperto</div></div></div><button class="btn" onclick="closeClub()">Cambia club</button></div>
-<h2>Cosa vuoi fare?</h2><div class="grid">
-<button id="playTile" class="tile" onclick="clientSection('play')"><div class="ico">🎾</div><strong>Gioca</strong><span>Prenota, organizza o trova una partita</span></button>
-<button class="tile" onclick="clientSection('lessons')"><div class="ico">🎓</div><strong>Lezioni e corsi</strong><span>Attività create dal club</span></button>
-<button class="tile" onclick="clientSection('events')"><div class="ico">🏆</div><strong>Tornei ed eventi</strong><span>Clinic, circuiti e campionati</span></button>
-<button class="tile" onclick="clientSection('packages')"><div class="ico">🏷️</div><strong>Pacchetti e promozioni</strong><span>Info, acquisto, residui e scadenze</span></button>
-<button class="tile"><div class="ico">🪪</div><strong>Tesseramento</strong><span>Dati AICS e stato tessera</span></button>
-<button class="tile"><div class="ico">👤</div><strong>Profilo</strong><span>Anagrafica e livello</span></button>
-</div><div id="clientDynamic"></div></div></section>
-
-<section id="manager" class="page"><div class="card"><div class="top"><div><b>Centro di controllo</b><div class="muted tiny">Le modifiche si riflettono subito lato cliente</div></div><span style="color:#9bec37;font-weight:900">LIVE</span></div><label>Club</label><select id="managerClub" onchange="renderManager()"><option value="eden">Eden Padel Club</option><option value="happy">Happy Time</option></select></div>
-<h2>Dashboard</h2><div class="kpis"><div class="card"><div class="muted tiny">Attività oggi</div><div id="kpiA" class="kpi">0</div></div><div class="card"><div class="muted tiny">Posti disponibili</div><div id="kpiS" class="kpi">0</div></div><div class="card"><div class="muted tiny">Pacchetti attivi</div><div id="kpiP" class="kpi">0</div></div><div class="card"><div class="muted tiny">Campi</div><div class="kpi">2</div></div></div>
-<h2>Planning gestionale</h2><div class="card"><div class="top"><b id="planningName"></b><button class="primary" onclick="toggleCreate()">＋ Crea attività</button></div><div id="createPanel" style="display:none"><div class="row"><div><label>Tipo</label><select id="actType"><option>Partita libera</option><option>Lezione X1</option><option>Lezione X2</option><option>Lezione di gruppo</option><option>Corso</option><option>Clinic</option><option>Torneo</option><option>Blocco campo</option></select></div><div><label>Campo</label><select id="actCourt"></select></div></div><div class="row"><div><label>Ora</label><input id="actTime" value="18:30"></div><div><label>Durata</label><select id="actDuration"><option value="60">60 min</option><option value="90" selected>90 min</option></select></div></div><div class="row"><div><label>Posti max</label><input id="actCapacity" type="number" value="4"></div><div><label>Iscritti</label><input id="actBooked" type="number" value="3"></div></div><label>Visibilità cliente</label><select id="actVisible"><option value="yes">Visibile</option><option value="no">Solo gestionale</option></select><label>Titolo</label><input id="actTitle" value="Lezione di gruppo"><div class="actions"><button class="primary" onclick="createActivity()">Salva</button><button class="btn" onclick="toggleCreate()">Annulla</button></div></div><div id="planning" class="planning" style="margin-top:12px"></div></div>
-<h2>Configurazione club</h2><div class="card"><div class="row"><div><label>Campo 1</label><input id="court1"></div><div><label>Campo 2</label><input id="court2"></div></div><div class="row"><div><label>Apertura Lun-Ven</label><input id="weekdayOpen"></div><div><label>Chiusura Lun-Ven</label><input id="weekdayClose"></div></div><div class="row"><div><label>Apertura Weekend</label><input id="weekendOpen"></div><div><label>Chiusura Weekend</label><input id="weekendClose"></div></div><label><input id="freePlay" type="checkbox" style="width:auto"> Partite libere attive lato cliente</label><div class="actions"><button class="primary" onclick="saveConfig()">Salva configurazione</button><button class="btn" onclick="previewClient()">Vedi come cliente</button></div></div>
-<h2>Richieste istruttori</h2>
-<div class="card"><div class="muted tiny">Le attività create dagli istruttori non sono pubblicate lato cliente finché non le approvi.</div></div>
-<div id="approvalQueue" class="feed"></div>
-<h2>Attività create</h2><div id="activityList" class="feed"></div></section>
-
-<section id="instructor" class="page">
-<div class="card">
-  <div class="instructorHeader">
-    <div><b>Area Istruttore</b><div class="muted tiny">Accesso personale con email e password</div></div>
-    <div class="roleName" id="instructorName">Andrea Verdi</div>
-  </div>
-  <label>Club</label>
-  <select id="instructorClub" onchange="renderInstructor()"><option value="eden">Eden Padel Club</option><option value="happy">Happy Time</option></select>
-</div>
-
-<h2>Crea attività</h2>
-<div class="card">
-  <div class="row">
-    <div><label>Tipo attività</label><select id="insType"><option>Partita libera</option><option>Lezione X1</option><option>Lezione X2</option><option>Lezione di gruppo</option><option>Corso</option><option>Clinic</option><option>Torneo</option><option>Campionato</option><option>Blocco campo</option></select></div>
-    <div><label>Campo</label><select id="insCourt"></select></div>
-  </div>
-  <div class="row">
-    <div><label>Ora</label><input id="insTime" value="18:30"></div>
-    <div><label>Durata</label><select id="insDuration"><option value="60">60 min</option><option value="90" selected>90 min</option></select></div>
-  </div>
-  <div class="row">
-    <div><label>Posti massimi</label><input id="insCapacity" type="number" value="4"></div>
-    <div><label>Iscritti iniziali</label><input id="insBooked" type="number" value="0"></div>
-  </div>
-  <label>Titolo</label><input id="insTitle" value="Nuova attività istruttore">
-  <label>Nota per l'Admin</label><input id="insNote" value="Da verificare e approvare">
-  <button class="primary" style="width:100%;margin-top:10px" onclick="submitInstructorActivity()">Invia per approvazione</button>
-</div>
-
-<h2>Le mie richieste</h2>
-<div id="instructorRequests" class="feed"></div>
-</section>
-</div>
-<nav class="bottom">
-<button onclick="setMode('client')">🏠<br>Cliente</button>
-<button onclick="setMode('manager')">🛠️<br>Gestionale</button>
-<button onclick="setMode('instructor')">🎓<br>Istruttore</button>
-<button onclick="previewClient()">👁️<br>Anteprima</button>
-<button onclick="logout()">🚪<br>Esci</button>
-</nav>
-<script>
-const defaults={eden:{name:'Eden Padel Club',logo:'assets/eden.jpeg',courts:['Campo Blu','Campo Verde'],weekdayOpen:'06:30',weekdayClose:'23:00',weekendOpen:'08:30',weekendClose:'19:30',freePlay:true,activities:[{id:1,type:'Clinic',court:'Campo Blu',time:'10:00',duration:90,capacity:8,booked:5,visible:true,title:'Clinic Weekend'},{id:2,type:'Partita libera',court:'Campo Verde',time:'20:00',duration:90,capacity:4,booked:3,visible:true,title:'Partita Intermedio'}],packages:[['5 LEZIONI X1','150 €','31/10/2026'],['5 LEZIONI X2','80 € / persona','31/10/2026']]},happy:{name:'Happy Time',logo:'assets/happy.jpeg',courts:['Campo 1','Campo 2'],weekdayOpen:'06:30',weekdayClose:'23:00',weekendOpen:'08:30',weekendClose:'19:30',freePlay:false,activities:[{id:3,type:'Lezione di gruppo',court:'Campo 1',time:'18:00',duration:90,capacity:4,booked:3,visible:true,title:'Lezione di gruppo'}],packages:[]}};
-let data=JSON.parse(localStorage.getItem('pam_v11_data')||'null')||defaults;
-let instructorRequests=JSON.parse(localStorage.getItem('pam_v11_instructor_requests')||'[]');
-let currentClub=null;
-let selectedLoginRole='client';
-const demoUsers={
- client:{email:'cliente@demo.it',password:'cliente123'},
- manager:{email:'admin@demo.it',password:'admin123'},
- instructor:{email:'istruttore@demo.it',password:'istruttore123'}
-};
-function save(){
- localStorage.setItem('pam_v11_data',JSON.stringify(data));
- localStorage.setItem('pam_v11_instructor_requests',JSON.stringify(instructorRequests));
-}
-function chooseRole(role){
- selectedLoginRole=role;
- ['client','manager','instructor'].forEach(r=>document.getElementById('role'+r.charAt(0).toUpperCase()+r.slice(1)).classList.toggle('active',r===role));
- const u=demoUsers[role];loginEmail.value=u.email;loginPassword.value=u.password;
- const names={client:'Cliente',manager:'Gestore',instructor:'Istruttore'};
- loginHint.textContent='Demo '+names[role]+': '+u.email+' / '+u.password;
-}
-function doLogin(){
- const u=demoUsers[selectedLoginRole];
- if(loginEmail.value.trim()!==u.email||loginPassword.value!==u.password){alert('Credenziali demo non corrette.');return}
- loginGate.style.display='none';
- setMode(selectedLoginRole);
-}
-function logout(){loginGate.style.display='grid';chooseRole('client')}
-
-function setMode(m){
- client.classList.toggle('active',m==='client');
- manager.classList.toggle('active',m==='manager');
- instructor.classList.toggle('active',m==='instructor');
- clientBtn.classList.toggle('active',m==='client');
- managerBtn.classList.toggle('active',m==='manager');
- instructorBtn.classList.toggle('active',m==='instructor');
- if(m==='manager')renderManager();
- if(m==='instructor')renderInstructor();
- scrollTo(0,0)
-}
-function openClub(id){currentClub=id;const c=data[id];gateway.style.display='none';clubView.style.display='block';clubLogo.src=c.logo;clubName.textContent=c.name;playTile.style.display=c.freePlay?'':'none';clientSection('home')}
-function closeClub(){clubView.style.display='none';gateway.style.display='block';currentClub=null;clientDynamic.innerHTML=''}
-function card(a){let left=Math.max(0,a.capacity-a.booked);return '<div class="card"><div><b>'+a.title+'</b><div class="muted">'+a.type+' • '+a.time+' • '+a.court+'</div><div class="tiny muted">'+left+' posti disponibili</div></div><button class="btn">Dettagli</button></div>'}
-function clientSection(s){const c=data[currentClub];if(s==='home')clientDynamic.innerHTML='<h2>Succede qui</h2><div class="feed">'+c.activities.filter(a=>a.visible).map(card).join('')+'</div>';if(s==='play')clientDynamic.innerHTML='<h2>Gioca</h2><div class="grid"><div class="tile"><div class="ico">📅</div><strong>Prenota campo</strong><span>60 min 9 €/persona • 90 min 12 €/persona • dalle 18:30 solo 90 min</span></div><div class="tile"><div class="ico">📣</div><strong>Organizza</strong><span>Non blocca il campo finché non siete in 4</span></div><div class="tile"><div class="ico">👥</div><strong>Partite aperte</strong><span>Cerca giocatori compatibili</span></div></div>';if(s==='lessons')clientDynamic.innerHTML='<h2>Lezioni e corsi</h2><div class="feed">'+c.activities.filter(a=>a.visible&&['Lezione X1','Lezione X2','Lezione di gruppo','Corso'].includes(a.type)).map(card).join('')+'</div>';if(s==='events')clientDynamic.innerHTML='<h2>Tornei ed eventi</h2><div class="feed">'+c.activities.filter(a=>a.visible&&['Clinic','Torneo'].includes(a.type)).map(card).join('')+'</div>';if(s==='packages')clientDynamic.innerHTML='<h2>Pacchetti e promozioni</h2><div class="feed">'+(c.packages.length?c.packages.map(p=>'<div class="card"><div><b>'+p[0]+'</b><div class="muted">'+p[1]+' • scadenza '+p[2]+'</div></div><button class="btn">Acquista</button></div>').join(''):'<div class="card muted">Nessun pacchetto configurato.</div>')+'</div>'}
-function renderManager(){const c=data[managerClub.value];planningName.textContent=c.name;court1.value=c.courts[0];court2.value=c.courts[1];weekdayOpen.value=c.weekdayOpen;weekdayClose.value=c.weekdayClose;weekendOpen.value=c.weekendOpen;weekendClose.value=c.weekendClose;freePlay.checked=c.freePlay;actCourt.innerHTML=c.courts.map(x=>'<option>'+x+'</option>').join('');kpiA.textContent=c.activities.length;kpiS.textContent=c.activities.reduce((s,a)=>s+Math.max(0,a.capacity-a.booked),0);kpiP.textContent=c.packages.length;renderPlanning();
-renderApprovalQueue();
-activityList.innerHTML=c.activities.map(a=>'<div class="card"><div><b>'+a.title+'</b><div class="muted">'+a.type+' • '+a.court+' • '+a.time+'</div></div><button class="danger" onclick="delAct('+a.id+')">Elimina</button></div>').join('')}
-function renderPlanning(){const c=data[managerClub.value],times=['17:00','18:00','18:30','20:00','21:30'];let h='<table><tr><th>Ora</th><th>'+c.courts[0]+'</th><th>'+c.courts[1]+'</th></tr>';times.forEach(t=>{h+='<tr><th>'+t+'</th>';c.courts.forEach(cr=>{let a=c.activities.find(x=>x.time===t&&x.court===cr);h+=a?'<td class="'+(a.type==='Blocco campo'?'blocked':'activity')+'">'+a.title+'</td>':'<td class="free">Libero</td>'});h+='</tr>'});planning.innerHTML=h+'</table>'}
-function toggleCreate(){createPanel.style.display=createPanel.style.display==='none'?'block':'none'}
-function createActivity(){const c=data[managerClub.value],d=+actDuration.value,t=actTime.value;if(t>='18:30'&&actType.value==='Partita libera'&&d===60){alert('Dalle 18:30 solo partite da 90 minuti.');return}c.activities.push({id:Date.now(),type:actType.value,court:actCourt.value,time:t,duration:d,capacity:+actCapacity.value,booked:+actBooked.value,visible:actVisible.value==='yes',title:actTitle.value||actType.value});save();toggleCreate();renderManager();alert('Attività salvata e già visibile lato cliente se impostata come visibile.')}
-function delAct(id){let c=data[managerClub.value];c.activities=c.activities.filter(a=>a.id!==id);save();renderManager()}
-function saveConfig(){let c=data[managerClub.value];c.courts=[court1.value,court2.value];c.weekdayOpen=weekdayOpen.value;c.weekdayClose=weekdayClose.value;c.weekendOpen=weekendOpen.value;c.weekendClose=weekendClose.value;c.freePlay=freePlay.checked;save();renderManager();alert('Configurazione aggiornata lato cliente.')}
-function previewClient(){const id=managerClub.value;setMode('client');openClub(id)}
-
-function renderInstructor(){
- const c=data[instructorClub.value];
- insCourt.innerHTML=c.courts.map(x=>'<option>'+x+'</option>').join('');
- const mine=instructorRequests.filter(r=>r.instructor==='Andrea Verdi');
- instructorRequestsEl=document.getElementById('instructorRequests');
- instructorRequestsEl.innerHTML=mine.length?mine.map(r=>{
-   const cls=r.status==='approved'?'statusApproved':r.status==='rejected'?'statusRejected':'statusPending';
-   const label=r.status==='approved'?'APPROVATA':r.status==='rejected'?'RIFIUTATA':'IN ATTESA';
-   return '<div class="card '+cls+'"><div><b>'+r.title+'</b><div class="muted">'+r.type+' • '+r.clubName+' • '+r.court+' • '+r.time+'</div><div class="tiny">Stato: '+label+'</div>'+(r.adminNote?'<div class="tiny muted">Admin: '+r.adminNote+'</div>':'')+'</div></div>';
- }).join(''):'<div class="card muted">Nessuna richiesta inviata.</div>';
-}
-
-function submitInstructorActivity(){
- const clubId=instructorClub.value,c=data[clubId],dur=+insDuration.value,t=insTime.value;
- if(t>='18:30'&&insType.value==='Partita libera'&&dur===60){alert('Dalle 18:30 le partite libere possono essere solo da 90 minuti.');return}
- instructorRequests.push({
-   id:Date.now(),instructor:'Andrea Verdi',clubId,clubName:c.name,
-   type:insType.value,court:insCourt.value,time:t,duration:dur,
-   capacity:+insCapacity.value,booked:+insBooked.value,title:insTitle.value||insType.value,
-   note:insNote.value,status:'pending',adminNote:''
- });
- save();renderInstructor();
- alert('Richiesta inviata all’Admin. Non è ancora visibile ai clienti.');
-}
-
-function renderApprovalQueue(){
- const clubId=managerClub.value;
- const pending=instructorRequests.filter(r=>r.clubId===clubId);
- approvalQueue.innerHTML=pending.length?pending.map(r=>{
-   const cls=r.status==='approved'?'statusApproved':r.status==='rejected'?'statusRejected':'statusPending';
-   const status=r.status==='approved'?'APPROVATA':r.status==='rejected'?'RIFIUTATA':'IN ATTESA';
-   let actions=r.status==='pending'
-    ? '<div class="queueActions"><button class="primary" onclick="approveInstructor('+r.id+')">Approva</button><button class="danger" onclick="rejectInstructor('+r.id+')">Rifiuta</button></div>'
-    : '<span class="badge">'+status+'</span>';
-   return '<div class="card queueItem '+cls+'"><div><b>'+r.title+'</b><div class="muted">'+r.instructor+' • '+r.type+' • '+r.court+' • '+r.time+' • '+r.duration+' min</div><div class="tiny muted">Nota: '+r.note+'</div></div>'+actions+'</div>';
- }).join(''):'<div class="card muted">Nessuna richiesta istruttore per questo club.</div>';
-}
-
-function approveInstructor(id){
- const r=instructorRequests.find(x=>x.id===id);if(!r)return;
- r.status='approved';r.adminNote='Approvata dall’Admin principale';
- data[r.clubId].activities.push({
-   id:r.id,type:r.type,court:r.court,time:r.time,duration:r.duration,
-   capacity:r.capacity,booked:r.booked,visible:true,title:r.title,
-   source:'instructor',instructor:r.instructor
- });
- save();renderManager();alert('Attività approvata e pubblicata lato cliente.');
-}
-
-function rejectInstructor(id){
- const r=instructorRequests.find(x=>x.id===id);if(!r)return;
- const note=prompt('Motivo del rifiuto (facoltativo):','Da modificare');
- r.status='rejected';r.adminNote=note||'Rifiutata dall’Admin principale';
- save();renderManager();alert('Richiesta rifiutata. Non è stata pubblicata.');
-}
-
-renderManager();
-  init();
-</script></body></html>
+<nav id="bottomNav" class="bottom hidden"><button data-nav="home">🏠<br>Home</button><button data-nav="activities">📅<br>Attività</button><button data-nav="profile">👤<br>Profilo</button><button id="logoutBtn">🚪<br>Esci</button></nav>
+<script type="module" src="app.js"></script>
+</body></html>

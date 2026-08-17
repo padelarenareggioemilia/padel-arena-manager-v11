@@ -1,130 +1,41 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDpw8GsnYGupBc94qt4ZqC2af8TSuZ2tes",
-  authDomain: "padel-arena-manager-v11.firebaseapp.com",
-  projectId: "padel-arena-manager-v11",
-  storageBucket: "padel-arena-manager-v11.firebasestorage.app",
-  messagingSenderId: "140040431254",
-  appId: "1:140040431254:web:de0e76cac028088c1704b7"
-};
-let DATA, currentCenter, view='home';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import { getFirestore,doc,getDoc,setDoc,addDoc,updateDoc,collection,getDocs,query,where,serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-const icons = {play:'🎾', lessons:'🎓', events:'🏆', membership:'🪪', profile:'👤', booking:'📅'};
+const firebaseConfig={apiKey:"AIzaSyDpw8GsnYGupBc94qt4ZqC2af8TSuZ2tes",authDomain:"padel-arena-manager-v11.firebaseapp.com",projectId:"padel-arena-manager-v11",storageBucket:"padel-arena-manager-v11.firebasestorage.app",messagingSenderId:"140040431254",appId:"1:140040431254:web:de0e76cac028088c1704b7"};
+const fb=initializeApp(firebaseConfig),auth=getAuth(fb),db=getFirestore(fb),$=id=>document.getElementById(id);
+const CLUBS={eden:{id:"eden",name:"Eden Padel Club",logo:"assets/eden.jpeg",courts:["Campo Blu","Campo Verde"],freePlay:true,weekday:"06:30–23:00",weekend:"08:30–19:30"},happy:{id:"happy",name:"Happy Time",logo:"assets/happy.jpeg",courts:["Campo 1","Campo 2"],freePlay:false,weekday:"06:30–23:00",weekend:"08:30–19:30"}};
+let S={user:null,profile:null,role:null,club:null,view:"home",preview:null};
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+const name=()=>[S.profile?.firstName,S.profile?.lastName].filter(Boolean).join(" ")||S.user?.email||"";
+function showAuth(msg=""){$("authView").classList.remove("hidden");$("appView").classList.add("hidden");$("bottomNav").classList.add("hidden");$("authMsg").textContent=msg}
+function showApp(){$("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("bottomNav").classList.remove("hidden")}
+function friendly(e){if(e.code?.includes("invalid-credential"))return"email o password non corrette.";if(e.code?.includes("email-already-in-use"))return"questa email è già registrata.";return e.message||"Errore."}
+$("loginTab").onclick=()=>{$("loginForm").classList.remove("hidden");$("registerForm").classList.add("hidden");$("loginTab").classList.add("active");$("registerTab").classList.remove("active")};
+$("registerTab").onclick=()=>{$("registerForm").classList.remove("hidden");$("loginForm").classList.add("hidden");$("registerTab").classList.add("active");$("loginTab").classList.remove("active")};
+$("loginForm").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value)}catch(x){$("authMsg").textContent=friendly(x)}};
+$("registerForm").onsubmit=async e=>{e.preventDefault();try{const c=await createUserWithEmailAndPassword(auth,$("regEmail").value.trim(),$("regPassword").value);await setDoc(doc(db,"profiles",c.user.uid),{role:"client",firstName:$("regFirstName").value.trim(),lastName:$("regLastName").value.trim(),birthDate:$("regBirthDate").value,birthPlace:$("regBirthPlace").value.trim(),residenceCity:$("regResidence").value.trim(),cap:$("regCap").value.trim(),province:$("regProvince").value.trim().toUpperCase(),phone:$("regPhone").value.trim(),email:$("regEmail").value.trim().toLowerCase(),photoUrl:"",level:$("regLevel").value,levelStatus:"self_declared",levelCertifiedBy:null,followedClubs:["eden","happy"],createdAt:serverTimestamp()})}catch(x){$("authMsg").textContent=friendly(x)}};
+$("resetPasswordBtn").onclick=async()=>{const e=$("loginEmail").value.trim();if(!e)return $("authMsg").textContent="Inserisci prima la tua email.";try{await sendPasswordResetEmail(auth,e);$("authMsg").textContent="Email per reimpostare la password inviata."}catch(x){$("authMsg").textContent=friendly(x)}};
+$("logoutBtn").onclick=()=>signOut(auth);
+$("bottomNav").onclick=e=>{const b=e.target.closest("[data-nav]");if(b){S.view=b.dataset.nav;render()}};
 
-async function init(){
-  DATA = await fetch('data.json').then(r=>r.json());
-  currentCenter = localStorage.getItem('pam-center') || DATA.centers[0].id;
-  render();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-}
-function center(){ return DATA.centers.find(c=>c.id===currentCenter) || DATA.centers[0]; }
-function setCenter(id){ currentCenter=id; localStorage.setItem('pam-center',id); view='home'; render(); }
-function go(v){ view=v; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+onAuthStateChanged(auth,async u=>{if(!u){S={user:null,profile:null,role:null,club:null,view:"home",preview:null};showAuth();return}S.user=u;const p=await getDoc(doc(db,"profiles",u.uid));if(!p.exists()){await signOut(auth);return showAuth("Account autenticato, ma il profilo non è ancora configurato. Admin e Istruttori devono essere configurati in Firestore.")}S.profile=p.data();S.role=S.profile.role||"client";S.preview=null;S.view="home";showApp();render()});
 
-function shell(content,active='home'){
-  const c=center();
-  return `<div class="app-shell">
-    <div class="topbar">
-      <img class="brand-logo" src="assets/padel-arena-manager.jpeg">
-      <div class="brand-title">PADEL ARENA<br>MANAGER <small>v11</small></div>
-    </div>
-    ${content}
-    <footer>Prototype v11 • Padel Arena Manager</footer>
-  </div>
-  <nav class="bottomnav">
-    <button class="${active==='home'?'active':''}" onclick="go('home')">🏠<br>Home</button>
-    <button class="${active==='activities'?'active':''}" onclick="go('activities')">📅<br>Attività</button>
-    <button class="${active==='booking'?'active':''}" onclick="go('booking')">➕<br>Prenota</button>
-    <button class="${active==='alerts'?'active':''}" onclick="go('alerts')">🔔<br>Avvisi</button>
-    <button class="${active==='profile'?'active':''}" onclick="go('profile')">👤<br>Profilo</button>
-  </nav>`;
-}
-function hero(){
-  const c=center();
-  return `<section class="hero">
-    <div class="center-row">
-      <img class="center-logo" src="${c.logo}">
-      <div class="center-select">
-        <div class="muted">Il tuo centro</div>
-        <select onchange="setCenter(this.value)">
-          ${DATA.centers.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${x.name}</option>`).join('')}
-        </select>
-      </div>
-    </div>
-    <div class="affiliation"><span>Affiliato / tesseramento</span><img src="${c.affiliationLogo}" alt="${c.affiliation}"></div>
-  </section>`;
-}
-function home(){
-  const c=center();
-  const play = c.modules.play ? `<button class="action" onclick="go('play')">🎾<strong>Gioca</strong><span>Prenota, trova o crea una partita</span></button>` : '';
-  return shell(`${hero()}
-    <h2>Ciao 👋</h2>
-    <div class="card activity"><div>📅</div><div><span class="badge">PROSSIMA ATTIVITÀ</span><strong style="display:block;margin-top:8px">Giovedì • 18:00</strong><div class="muted">Lezione X1 • ${c.name}</div></div></div>
-    <h2>Cosa vuoi fare?</h2>
-    <div class="grid">
-      ${play}
-      <button class="action" onclick="go('lessons')">🎓<strong>Lezioni e corsi</strong><span>Pacchetti, calendario e presenze</span></button>
-      <button class="action" onclick="go('events')">🏆<strong>Tornei ed eventi</strong><span>Clinic, circuiti e campionati</span></button>
-      <button class="action" onclick="go('membership')">🪪<strong>Tesseramento</strong><span>Stato tessera e documenti</span></button>
-    </div>
-    <h2>Succede al club</h2>
-    <div class="list">
-      ${c.modules.openMatches?`<div class="card notice"><div><strong>Manca 1 giocatore</strong><div class="muted">Oggi 20:30 • livello 3.0–3.5</div></div><button class="secondary">Unisciti</button></div>`:''}
-      <div class="card"><div><strong>Clinic weekend</strong><div class="muted">Posti disponibili</div></div><button class="secondary">Scopri</button></div>
-    </div>`, 'home');
-}
-function play(){
-  const c=center();
-  if(!c.modules.play) return shell(`${hero()}<h2>Gioca</h2><div class="card">Questo modulo non è attivo per ${c.name}.</div>`,'activities');
-  return shell(`${hero()}<div class="page-head"><h2>Gioca</h2><button class="back" onclick="go('home')">← Home</button></div>
-  <div class="grid">
-    <button class="action" onclick="go('booking')">📅<strong>Prenota campo</strong><span>Vista rapida o pannello completo</span></button>
-    <button class="action">👥<strong>Trova partita</strong><span>Partite aperte compatibili</span></button>
-    <button class="action">➕<strong>Crea partita</strong><span>Privata o aperta</span></button>
-    <button class="action">🕘<strong>Le mie partite</strong><span>Prossime e storico</span></button>
-  </div>`,'activities');
-}
-function booking(){
-  const c=center();
-  if(!c.modules.courtBooking) return shell(`${hero()}<h2>Prenota</h2><div class="card">La prenotazione campi non è attiva per ${c.name}.</div>`,'booking');
-  const rows = ['17:00','18:00','19:00','20:00','21:00'].map((t,i)=>`
-    <div>${t}</div>
-    <div class="${i===2?'busy':'free'}">${i===2?'Occupato':'Libero'}</div>
-    <div class="${i===1||i===4?'busy':'free'}">${i===1||i===4?'Occupato':'Libero'}</div>
-    <div class="${i===0?'busy':'free'}">${i===0?'Occupato':'Libero'}</div>`).join('');
-  return shell(`${hero()}<div class="page-head"><h2>Prenota un campo</h2><button class="back" onclick="go('play')">← Gioca</button></div>
-  <div class="card"><strong>Vista pannello completa</strong><div class="muted">Demo • oggi</div></div>
-  <div class="slot-grid" style="margin-top:10px">
-    <div></div><div>Campo 1</div><div>Campo 2</div><div>Campo 3</div>${rows}
-  </div>
-  <div class="card" style="margin-top:12px"><strong>Vista rapida</strong><div class="muted">Nel prodotto completo qui potrai scegliere giorno, ora e durata.</div></div>`,'booking');
-}
-function lessons(){
-  const c=center();
-  const packs = DATA.packages.filter(p=>p.center===c.id);
-  return shell(`${hero()}<div class="page-head"><h2>Lezioni e corsi</h2><button class="back" onclick="go('home')">← Home</button></div>
-  <div class="card"><span class="badge">PROSSIMA LEZIONE</span><strong style="display:block;margin-top:8px">Giovedì • 18:00</strong><div class="muted">Lezione X1 • Maestro Marco</div></div>
-  <h2>I miei pacchetti</h2>
-  <div class="card"><div class="kpi">3 / 5</div><strong>5 LEZIONI X1</strong><div class="muted">3 lezioni rimanenti • scadenza 31/10/2026</div><div class="progress"><i></i></div></div>
-  <h2>Listino disponibile</h2>
-  <div class="list">${packs.length?packs.map(p=>`<div class="card"><div><strong>${p.name}</strong><div class="muted">${p.description}</div></div><strong>${p.price}</strong></div>`).join(''):`<div class="card">Listino da configurare per ${c.name}.</div>`}</div>`,'activities');
-}
-function events(){ return shell(`${hero()}<h2>Tornei ed eventi</h2><div class="card">Modulo predisposto per tornei, clinic, circuiti e campionati. Potremo integrare qui il progetto tornei.</div>`,'activities');}
-function membership(){ return shell(`${hero()}<h2>Tesseramento</h2><div class="card"><span class="badge">AICS</span><div class="kpi" style="font-size:1.25rem;margin-top:10px">Tesseramento attivo</div><div class="muted">Scadenza demo: 31/08/2027</div></div><h2>Documenti</h2><div class="card">✓ Anagrafica completa<br>✓ Quota registrata<br>✓ Tessera collegata al profilo</div>`,'profile');}
-function profile(){ return shell(`${hero()}<h2>Profilo</h2><div class="card"><strong>Cliente Demo</strong><div class="muted">Giocatore • Allievo • Partecipante eventi</div></div><h2>Collegamenti</h2><div class="card">Pacchetti • Pagamenti • Figli collegati • Documenti • Storico attività</div>`,'profile');}
-function generic(title,msg,active){ return shell(`${hero()}<h2>${title}</h2><div class="card">${msg}</div>`,active); }
-
-function render(){
-  let html;
-  if(view==='home') html=home();
-  else if(view==='play') html=play();
-  else if(view==='booking') html=booking();
-  else if(view==='lessons') html=lessons();
-  else if(view==='events') html=events();
-  else if(view==='membership') html=membership();
-  else if(view==='profile') html=profile();
-  else if(view==='activities') html=generic('Attività','Calendario unificato di partite, lezioni, corsi ed eventi.','activities');
-  else if(view==='alerts') html=generic('Avvisi','Qui arriveranno notifiche utili: lezioni residue, tesseramento, partite da completare, eventi e scadenze.','alerts');
-  else html=home();
-  document.getElementById('app').innerHTML=html;
-}
-init();
+function render(){const r=S.preview||S.role;$("roleBadge").textContent=r==="admin"?"Admin":r==="instructor"?"Istruttore":"Cliente";$("userName").textContent=name();previewBar();if(r==="admin")admin();else if(r==="instructor")instructor();else client()}
+function previewBar(){const e=$("adminPreviewBar");if(S.role!=="admin"){e.classList.add("hidden");return}e.classList.remove("hidden");const a=S.preview||"admin";e.innerHTML=`<button class="btn ${a==="admin"?"primary":""}" data-p="admin">Gestionale Admin</button><button class="btn ${a==="client"?"primary":""}" data-p="client">Anteprima Cliente</button><button class="btn ${a==="instructor"?"primary":""}" data-p="instructor">Anteprima Istruttore</button>`;e.onclick=x=>{const b=x.target.closest("[data-p]");if(b){S.preview=b.dataset.p;S.view="home";S.club=null;render()}}}
+function clubList(){return `<div class="card"><div class="top"><div><b>Club che segui</b><div class="muted tiny">Apri un club per entrare nel suo ambiente.</div></div><img src="assets/aics.jpeg" style="width:88px;background:white;border-radius:8px;padding:4px"></div>${Object.values(CLUBS).map(c=>`<div class="clubrow"><img src="${c.logo}"><div><b>${c.name}</b><div class="muted tiny">AICS • Lun–Ven ${c.weekday} • Weekend ${c.weekend}</div></div><button class="btn" data-club="${c.id}">Apri</button></div>`).join("")}<label>Cerca altri club</label><input placeholder="Cerca per nome o città"></div>`}
+function head(c){return `<div class="card top"><div style="display:flex;gap:10px;align-items:center"><img class="clubLogo" src="${c.logo}"><div><b>${c.name}</b><div class="muted tiny">Club aperto</div></div></div><button class="btn" id="changeClub">Cambia club</button></div>`}
+function client(){if(!S.club){$("main").innerHTML=clubList();document.querySelectorAll("[data-club]").forEach(b=>b.onclick=()=>{S.club=b.dataset.club;S.view="home";render()});return}const c=CLUBS[S.club];let h="";if(S.view==="home")h=home(c);else if(S.view==="play")h=play(c);else if(S.view==="lessons")h=section("Lezioni e corsi","lessonList");else if(S.view==="events")h=section("Tornei ed eventi","eventList");else if(S.view==="packages")h=section("Pacchetti e promozioni","packageList",`<div class="card notice"><b>Validità per club</b><div class="muted tiny">Qui compaiono solo pacchetti, residui e scadenze validi per ${c.name}.</div></div>`);else if(S.view==="membership")h=section("Tesseramento","membershipList");else if(S.view==="profile")h=profile();else h=section("Le mie attività","activityList");$("main").innerHTML=head(c)+h;$("changeClub").onclick=()=>{S.club=null;S.view="home";render()};document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{S.view=b.dataset.v;render()});hydrate(c)}
+function home(c){return `<h2>Cosa vuoi fare?</h2><div class="grid">${c.freePlay?`<button class="tile" data-v="play"><div class="ico">🎾</div><strong>Gioca</strong><span>Prenota, organizza o trova una partita</span></button>`:""}<button class="tile" data-v="lessons"><div class="ico">🎓</div><strong>Lezioni e corsi</strong><span>Attività create dal club</span></button><button class="tile" data-v="events"><div class="ico">🏆</div><strong>Tornei ed eventi</strong><span>Iscriviti alle attività pubblicate</span></button><button class="tile" data-v="packages"><div class="ico">🏷️</div><strong>Pacchetti e promozioni</strong><span>Info, acquisto, residui e scadenze</span></button><button class="tile" data-v="membership"><div class="ico">🪪</div><strong>Tesseramento</strong><span>Dati AICS e stato tessera</span></button><button class="tile" data-v="profile"><div class="ico">👤</div><strong>Profilo</strong><span>Anagrafica e livello</span></button></div><h2>Succede al club</h2><div id="clubFeed" class="list"><div class="card muted">Caricamento…</div></div>`}
+function play(c){if(!c.freePlay)return`<div class="card">Le partite libere non sono gestite da ${c.name}.</div>`;return `<div class="sectionHead"><h2>Gioca</h2><button class="btn" data-v="home">← Home</button></div><div class="grid"><div class="tile"><div class="ico">📅</div><strong>Prenota campo</strong><span>60 min = 9 € a testa • 90 min = 12 € a testa. Dalle 18:30 solo 90 minuti.</span></div><div class="tile"><div class="ico">📣</div><strong>Organizza</strong><span>Non blocca il campo finché non siete in 4.</span></div><div class="tile"><div class="ico">👥</div><strong>Partite aperte</strong><span>Cerca giocatori compatibili.</span></div><div class="tile"><div class="ico">🕘</div><strong>Le mie partite</strong><span>Prossime e storico.</span></div></div>`}
+function section(t,id,before=""){return `<div class="sectionHead"><h2>${t}</h2><button class="btn" data-v="home">← Home</button></div>${before}<div id="${id}" class="list"><div class="card muted">Caricamento…</div></div>`}
+function profile(){const p=S.profile;return `<div class="sectionHead"><h2>Profilo</h2><button class="btn" data-v="home">← Home</button></div><div class="card"><b>${esc(name())}</b><div class="muted">${esc(p.email)}</div><div style="margin-top:10px"><b>Livello</b><div>${esc(p.level||"Non indicato")}</div><div class="muted tiny">${p.levelStatus==="certified"?"Certificato da "+esc(p.levelCertifiedBy||"istruttore"):"Auto dichiarato"}</div></div></div>`}
+async function cards(club,types=null){const s=await getDocs(query(collection(db,"activities"),where("clubId","==",club)));const a=s.docs.map(d=>d.data()).filter(x=>(x.status||"approved")==="approved").filter(x=>!types||types.includes(x.type));return a.length?a.map(x=>`<div class="card"><div><b>${esc(x.title||x.type)}</b><div class="muted">${esc(x.type)} • ${esc(x.date||"")} ${esc(x.time||"")} • ${esc(x.court||"")}</div></div><button class="btn">Dettagli</button></div>`).join(""):`<div class="card muted">Nessuna attività pubblicata al momento.</div>`}
+async function hydrate(c){try{if($("clubFeed"))$("clubFeed").innerHTML=await cards(c.id);if($("lessonList"))$("lessonList").innerHTML=await cards(c.id,["Lezione X1","Lezione X2","Lezione di gruppo","Corso"]);if($("eventList"))$("eventList").innerHTML=await cards(c.id,["Clinic","Torneo","Campionato","Evento"]);if($("activityList"))$("activityList").innerHTML=await cards(c.id);if($("membershipList"))$("membershipList").innerHTML=`<div class="card"><b>AICS</b><div class="muted">Stato tesseramento e documenti collegati al profilo personale.</div></div>`;if($("packageList")){const s=await getDocs(query(collection(db,"packages"),where("clubId","==",c.id)));$("packageList").innerHTML=s.empty?`<div class="card muted">Nessun pacchetto configurato per questo club.</div>`:s.docs.map(d=>{const p=d.data();return`<div class="card"><div><b>${esc(p.name)}</b><div class="muted">${esc(p.description||"")}</div></div><b>${esc(p.price||"")}</b></div>`}).join("")}}catch(e){console.error(e)}}
+function instructor(){const clubs=S.profile.clubIds?.length?S.profile.clubIds:["eden","happy"];S.club=S.club&&clubs.includes(S.club)?S.club:clubs[0];const c=CLUBS[S.club];$("main").innerHTML=`<div class="card"><div class="top"><div><b>Area Istruttore</b><div class="muted tiny">${esc(name())}</div></div><span class="rolebadge">ISTRUTTORE</span></div><label>Club</label><select id="insClub">${clubs.map(id=>`<option value="${id}" ${id===S.club?"selected":""}>${CLUBS[id].name}</option>`).join("")}</select></div><h2>Crea attività</h2><form id="insForm" class="card"><div class="row"><div><label>Tipo</label><select id="insType"><option>Partita libera</option><option>Lezione X1</option><option>Lezione X2</option><option>Lezione di gruppo</option><option>Corso</option><option>Clinic</option><option>Torneo</option><option>Campionato</option><option>Evento</option><option>Blocco campo</option></select></div><div><label>Campo</label><select id="insCourt">${c.courts.map(x=>`<option>${x}</option>`).join("")}</select></div></div><div class="row"><div><label>Data</label><input id="insDate" type="date" required></div><div><label>Ora</label><input id="insTime" type="time" value="18:30" required></div></div><div class="row"><div><label>Durata</label><select id="insDuration"><option value="60">60 min</option><option value="90" selected>90 min</option></select></div><div><label>Posti max</label><input id="insCapacity" type="number" min="1" value="4"></div></div><label>Titolo</label><input id="insTitle" required><label>Nota per l'Admin</label><input id="insNote"><button class="primary" style="width:100%;margin-top:12px">Invia per approvazione</button></form><h2>Le mie richieste</h2><div id="insRequests" class="list"></div>`;$("insClub").onchange=e=>{S.club=e.target.value;instructor()};$("insForm").onsubmit=sendRequest;loadRequests()}
+async function sendRequest(e){e.preventDefault();const t=$("insTime").value,d=+$("insDuration").value;if(t>="18:30"&&$("insType").value==="Partita libera"&&d===60)return alert("Dalle 18:30 le partite libere possono essere solo da 90 minuti.");await addDoc(collection(db,"activity_requests"),{instructorId:S.user.uid,instructorName:name(),clubId:$("insClub").value,type:$("insType").value,court:$("insCourt").value,date:$("insDate").value,time:t,duration:d,capacity:+$("insCapacity").value,title:$("insTitle").value.trim(),note:$("insNote").value.trim(),status:"pending",createdAt:serverTimestamp()});alert("Richiesta inviata all'Admin. Non è ancora visibile ai clienti.");e.target.reset();loadRequests()}
+async function loadRequests(){const s=await getDocs(query(collection(db,"activity_requests"),where("instructorId","==",S.user.uid)));$("insRequests").innerHTML=s.empty?`<div class="card muted">Nessuna richiesta.</div>`:s.docs.map(d=>{const r=d.data();return`<div class="card ${r.status==="pending"?"notice":r.status==="approved"?"ok":"bad"}"><div><b>${esc(r.title)}</b><div class="muted">${esc(r.type)} • ${esc(CLUBS[r.clubId]?.name||r.clubId)}</div><div class="tiny">Stato: ${r.status==="pending"?"IN ATTESA":r.status==="approved"?"APPROVATA":"RIFIUTATA"}</div></div></div>`}).join("")}
+function admin(){S.club=S.club||"eden";const c=CLUBS[S.club];$("main").innerHTML=`<div class="card"><div class="top"><div><b>Centro di controllo</b><div class="muted tiny">Solo Admin può vedere tutte le anteprime.</div></div><span class="rolebadge">ADMIN</span></div><label>Club</label><select id="adminClub">${Object.values(CLUBS).map(x=>`<option value="${x.id}" ${x.id===S.club?"selected":""}>${x.name}</option>`).join("")}</select></div><div class="kpis"><div class="card"><div class="muted tiny">Richieste istruttori</div><div id="pending" class="kpi">—</div></div><div class="card"><div class="muted tiny">Attività pubblicate</div><div id="published" class="kpi">—</div></div></div><h2>Richieste istruttori</h2><div id="queue" class="list"></div><h2>Configurazione club</h2><div class="card"><b>${c.name}</b><div class="muted">Campi: ${c.courts.join(", ")}</div><div class="muted">Lun–Ven ${c.weekday} • Weekend ${c.weekend}</div><div class="muted">Partite libere: ${c.freePlay?"attive":"non gestite"}</div></div>`;$("adminClub").onchange=e=>{S.club=e.target.value;admin()};loadQueue()}
+async function loadQueue(){const rs=await getDocs(query(collection(db,"activity_requests"),where("clubId","==",S.club))),as=await getDocs(query(collection(db,"activities"),where("clubId","==",S.club))),r=rs.docs.map(d=>({id:d.id,...d.data()}));$("pending").textContent=r.filter(x=>x.status==="pending").length;$("published").textContent=as.size;$("queue").innerHTML=r.length?r.map(x=>`<div class="card ${x.status==="pending"?"notice":x.status==="approved"?"ok":"bad"}"><div><b>${esc(x.title)}</b><div class="muted">${esc(x.instructorName)} • ${esc(x.type)} • ${esc(x.date||"")} ${esc(x.time||"")}</div></div>${x.status==="pending"?`<div class="actions"><button class="primary" data-a="${x.id}">Approva</button><button class="danger" data-r="${x.id}">Rifiuta</button></div>`:`<span class="rolebadge">${x.status.toUpperCase()}</span>`}</div>`).join(""):`<div class="card muted">Nessuna richiesta.</div>`;document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>approve(b.dataset.a,r.find(x=>x.id===b.dataset.a)));document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>reject(b.dataset.r))}
+async function approve(id,r){await updateDoc(doc(db,"activity_requests",id),{status:"approved",approvedBy:S.user.uid,approvedAt:serverTimestamp()});await addDoc(collection(db,"activities"),{clubId:r.clubId,type:r.type,court:r.court,date:r.date,time:r.time,duration:r.duration,capacity:r.capacity,title:r.title,status:"approved",source:"instructor",instructorId:r.instructorId,instructorName:r.instructorName,createdAt:serverTimestamp()});loadQueue()}
+async function reject(id){const reason=prompt("Motivo del rifiuto (facoltativo):","Da modificare");await updateDoc(doc(db,"activity_requests",id),{status:"rejected",rejectionReason:reason||"",reviewedBy:S.user.uid,reviewedAt:serverTimestamp()});loadQueue()}

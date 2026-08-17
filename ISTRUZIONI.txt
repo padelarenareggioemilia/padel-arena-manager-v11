@@ -1,0 +1,8 @@
+PADEL ARENA MANAGER v11 - VERSIONE REALE
+
+1. Sostituisci nel repository GitHub i file index.html e app.js con quelli presenti qui.
+2. NON caricare firestore.rules su GitHub come dati dell'app: il file serve da copiare nella scheda Firestore > Regole e pubblicare.
+3. Questa versione rimuove le credenziali demo e usa Firebase Authentication.
+4. Cliente vede solo Cliente. Istruttore vede solo Istruttore. Admin può vedere Gestionale e le anteprime Cliente/Istruttore.
+5. Le attività create dagli istruttori restano pending fino all'approvazione Admin.
+6. Prima del test Admin/Istruttore occorre creare gli account Firebase e i relativi documenti profiles con role admin/instructor.
