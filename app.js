@@ -1,4 +1,11 @@
-
+const firebaseConfig = {
+  apiKey: "AIzaSyDpw8GsnYGupBc94qt4ZqC2af8TSuZ2tes",
+  authDomain: "padel-arena-manager-v11.firebaseapp.com",
+  projectId: "padel-arena-manager-v11",
+  storageBucket: "padel-arena-manager-v11.firebasestorage.app",
+  messagingSenderId: "140040431254",
+  appId: "1:140040431254:web:de0e76cac028088c1704b7"
+};
 let DATA, currentCenter, view='home';
 
 const icons = {play:'🎾', lessons:'🎓', events:'🏆', membership:'🪪', profile:'👤', booking:'📅'};
