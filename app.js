@@ -23,8 +23,8 @@ const db=getFirestore(fb);
 const $=id=>document.getElementById(id);
 
 const CLUBS={
-  eden:{id:"eden",name:"Eden Padel Club",logo:"assets/eden.jpeg",courts:["Campo Blu","Campo Verde"],freePlay:true,weekday:"06:30â€“23:00",weekend:"08:30â€“19:30"},
-  happy:{id:"happy",name:"Happy Time",logo:"assets/happy.jpeg",courts:["Campo 1","Campo 2"],freePlay:false,weekday:"06:30â€“23:00",weekend:"08:30â€“19:30"}
+  eden:{id:"eden",name:"Eden Padel Club",logo:"assets/eden.jpeg",courts:["Campo Blu","Campo Verde"],freePlay:true,weekday:"06:30–23:00",weekend:"08:30–19:30"},
+  happy:{id:"happy",name:"Happy Time",logo:"assets/happy.jpeg",courts:["Campo 1","Campo 2"],freePlay:false,weekday:"06:30–23:00",weekend:"08:30–19:30"}
 };
 
 const INSTRUCTOR={
@@ -34,23 +34,23 @@ const INSTRUCTOR={
 };
 
 const LESSON_SEED=[
-  ["2026-09-14","16:00","17:00","eden","Classe tecnica","VolÃ©e e posizione a rete",4,15],
+  ["2026-09-14","16:00","17:00","eden","Classe tecnica","Volée e posizione a rete",4,15],
   ["2026-09-15","16:30","17:30","eden","Lezione X1","Lezione individuale X1",1,35],
   ["2026-09-16","16:00","17:00","eden","Classe tecnica","Difesa e uscita dal vetro",4,15],
   ["2026-09-17","14:30","15:30","happy","Lezione X1","Lezione individuale X1",1,35],
   ["2026-09-17","17:30","18:30","happy","Classe tecnica","Bandeja: tecnica e controllo",4,15],
   ["2026-09-17","18:30","19:30","happy","Classe tecnica","Transizione fondo/rete",4,15],
   ["2026-09-18","17:30","18:30","eden","Classe tecnica","Servizio, risposta e primo colpo",4,15],
-  ["2026-09-19","09:30","10:30","eden","Lezione X1","X1 â€“ spazio libero tra le due lezioni",1,35],
+  ["2026-09-19","09:30","10:30","eden","Lezione X1","X1 – spazio libero tra le due lezioni",1,35],
   ["2026-09-19","11:30","12:30","eden","Classe tecnica","Lob e conquista della rete",4,15],
   ["2026-09-21","16:00","17:00","eden","Classe tecnica","Bandeja e recupero della posizione",4,15],
   ["2026-09-22","16:30","17:30","eden","Lezione X1","Lezione individuale X1",1,35],
   ["2026-09-23","16:00","17:00","eden","Classe tecnica","Difendere con i vetri",4,15],
   ["2026-09-24","14:30","15:30","happy","Lezione X1","Lezione individuale X1",1,35],
-  ["2026-09-24","17:30","18:30","happy","Classe tecnica","VolÃ©e: controllo e direzione",4,15],
+  ["2026-09-24","17:30","18:30","happy","Classe tecnica","Volée: controllo e direzione",4,15],
   ["2026-09-24","18:30","19:30","happy","Classe tecnica","Costruzione del punto",4,15],
   ["2026-09-25","17:30","18:30","eden","Classe tecnica","Pallonetto e transizione a rete",4,15],
-  ["2026-09-26","09:30","10:30","eden","Lezione X1","X1 â€“ spazio libero tra le due lezioni",1,35],
+  ["2026-09-26","09:30","10:30","eden","Lezione X1","X1 – spazio libero tra le due lezioni",1,35],
   ["2026-09-26","11:30","12:30","eden","Classe tecnica","Bandeja e gioco aereo",4,15]
 ];
 
@@ -75,7 +75,7 @@ function showApp(){
 }
 function friendly(e){
   if(e.code?.includes("invalid-credential"))return"email o password non corrette.";
-  if(e.code?.includes("email-already-in-use"))return"questa email Ã¨ giÃ  registrata.";
+  if(e.code?.includes("email-already-in-use"))return"questa email è già registrata.";
   return e.message||"Errore.";
 }
 
@@ -144,7 +144,7 @@ onAuthStateChanged(auth,async u=>{
   const p=await getDoc(doc(db,"profiles",u.uid));
   if(!p.exists()){
     await signOut(auth);
-    return showAuth("Account autenticato, ma il profilo non Ã¨ ancora configurato.");
+    return showAuth("Account autenticato, ma il profilo non è ancora configurato.");
   }
   S.profile=p.data();
   S.role=S.profile.role||"client";
@@ -188,10 +188,10 @@ function clubList(){
     </div>
     ${Object.values(CLUBS).map(c=>`<div class="clubrow">
       <img src="${c.logo}">
-      <div><b>${c.name}</b><div class="muted tiny">AICS â€¢ Lunâ€“Ven ${c.weekday} â€¢ Weekend ${c.weekend}</div></div>
+      <div><b>${c.name}</b><div class="muted tiny">AICS • Lun–Ven ${c.weekday} • Weekend ${c.weekend}</div></div>
       <button class="btn" data-club="${c.id}">Apri</button>
     </div>`).join("")}
-    <label>Cerca altri club</label><input placeholder="Cerca per nome o cittÃ ">
+    <label>Cerca altri club</label><input placeholder="Cerca per nome o città">
   </div>`;
 }
 function head(c){
@@ -210,8 +210,8 @@ function client(){
 
   if(S.view==="lessonDirect"&&lessonIds.length){
     $("main").innerHTML=`
-      <div class="sectionHead"><h2>Lezioni disponibili</h2><button class="btn" id="lessonBack">â† Home</button></div>
-      <div id="lessonDirectCard" class="list"><div class="card muted">Caricamentoâ€¦</div></div>`;
+      <div class="sectionHead"><h2>Lezioni disponibili</h2><button class="btn" id="lessonBack">← Home</button></div>
+      <div id="lessonDirectCard" class="list"><div class="card muted">Caricamento…</div></div>`;
     $("lessonBack").onclick=()=>{history.replaceState({},'',location.pathname);S.view="home";render()};
     loadDirectLessons(lessonIds);
     return;
@@ -229,10 +229,10 @@ function client(){
   else if(S.view==="play")h=play(c);
   else if(S.view==="lessons")h=lessonsClient(c);
   else if(S.view==="events")h=section("Tornei ed eventi","eventList");
-  else if(S.view==="packages")h=section("Pacchetti e promozioni","packageList",`<div class="card notice"><b>ValiditÃ  per club</b><div class="muted tiny">Qui compaiono solo pacchetti, residui e scadenze validi per ${c.name}.</div></div>`);
+  else if(S.view==="packages")h=section("Pacchetti e promozioni","packageList",`<div class="card notice"><b>Validità per club</b><div class="muted tiny">Qui compaiono solo pacchetti, residui e scadenze validi per ${c.name}.</div></div>`);
   else if(S.view==="membership")h=section("Tesseramento","membershipList");
   else if(S.view==="profile")h=profile();
-  else h=section("Le mie attivitÃ ","activityList");
+  else h=section("Le mie attività","activityList");
 
   $("main").innerHTML=head(c)+h;
   $("changeClub").onclick=()=>{S.club=null;S.view="home";render()};
@@ -242,44 +242,44 @@ function client(){
 
 function home(c){
   return `<h2>Cosa vuoi fare?</h2><div class="grid">
-    ${c.freePlay?`<button class="tile" data-v="play"><div class="ico">ðŸŽ¾</div><strong>Gioca</strong><span>Prenota, organizza o trova una partita</span></button>`:""}
-    <button class="tile" data-v="lessons"><div class="ico">ðŸŽ“</div><strong>Lezioni e corsi</strong><span>DisponibilitÃ  di Francesco Lignola</span></button>
-    <button class="tile" data-v="events"><div class="ico">ðŸ†</div><strong>Tornei ed eventi</strong><span>Iscriviti alle attivitÃ  pubblicate</span></button>
-    <button class="tile" data-v="packages"><div class="ico">ðŸ·ï¸</div><strong>Pacchetti e promozioni</strong><span>Info, acquisto, residui e scadenze</span></button>
-    <button class="tile" data-v="membership"><div class="ico">ðŸªª</div><strong>Tesseramento</strong><span>Dati AICS e stato tessera</span></button>
-    <button class="tile" data-v="profile"><div class="ico">ðŸ‘¤</div><strong>Profilo</strong><span>Anagrafica e livello</span></button>
+    ${c.freePlay?`<button class="tile" data-v="play"><div class="ico">🎾</div><strong>Gioca</strong><span>Prenota, organizza o trova una partita</span></button>`:""}
+    <button class="tile" data-v="lessons"><div class="ico">🎓</div><strong>Lezioni e corsi</strong><span>Disponibilità di Francesco Lignola</span></button>
+    <button class="tile" data-v="events"><div class="ico">🏆</div><strong>Tornei ed eventi</strong><span>Iscriviti alle attività pubblicate</span></button>
+    <button class="tile" data-v="packages"><div class="ico">🏷️</div><strong>Pacchetti e promozioni</strong><span>Info, acquisto, residui e scadenze</span></button>
+    <button class="tile" data-v="membership"><div class="ico">🪪</div><strong>Tesseramento</strong><span>Dati AICS e stato tessera</span></button>
+    <button class="tile" data-v="profile"><div class="ico">👤</div><strong>Profilo</strong><span>Anagrafica e livello</span></button>
   </div>
-  <h2>Succede al club</h2><div id="clubFeed" class="list"><div class="card muted">Caricamentoâ€¦</div></div>`;
+  <h2>Succede al club</h2><div id="clubFeed" class="list"><div class="card muted">Caricamento…</div></div>`;
 }
 function play(c){
   if(!c.freePlay)return`<div class="card">Le partite libere non sono gestite da ${c.name}.</div>`;
-  return `<div class="sectionHead"><h2>Gioca</h2><button class="btn" data-v="home">â† Home</button></div>
+  return `<div class="sectionHead"><h2>Gioca</h2><button class="btn" data-v="home">← Home</button></div>
   <div class="grid">
-    <div class="tile"><div class="ico">ðŸ“…</div><strong>Prenota campo</strong><span>60 min = 9 â‚¬ a testa â€¢ 90 min = 12 â‚¬ a testa. Dalle 18:30 solo 90 minuti.</span></div>
-    <div class="tile"><div class="ico">ðŸ“£</div><strong>Organizza</strong><span>Non blocca il campo finchÃ© non siete in 4.</span></div>
-    <div class="tile"><div class="ico">ðŸ‘¥</div><strong>Partite aperte</strong><span>Cerca giocatori compatibili.</span></div>
-    <div class="tile"><div class="ico">ðŸ•˜</div><strong>Le mie partite</strong><span>Prossime e storico.</span></div>
+    <div class="tile"><div class="ico">📅</div><strong>Prenota campo</strong><span>60 min = 9 € a testa • 90 min = 12 € a testa. Dalle 18:30 solo 90 minuti.</span></div>
+    <div class="tile"><div class="ico">📣</div><strong>Organizza</strong><span>Non blocca il campo finché non siete in 4.</span></div>
+    <div class="tile"><div class="ico">👥</div><strong>Partite aperte</strong><span>Cerca giocatori compatibili.</span></div>
+    <div class="tile"><div class="ico">🕘</div><strong>Le mie partite</strong><span>Prossime e storico.</span></div>
   </div>`;
 }
 function section(t,id,before=""){
-  return `<div class="sectionHead"><h2>${t}</h2><button class="btn" data-v="home">â† Home</button></div>${before}<div id="${id}" class="list"><div class="card muted">Caricamentoâ€¦</div></div>`;
+  return `<div class="sectionHead"><h2>${t}</h2><button class="btn" data-v="home">← Home</button></div>${before}<div id="${id}" class="list"><div class="card muted">Caricamento…</div></div>`;
 }
 function profile(){
   const p=S.profile;
-  return `<div class="sectionHead"><h2>Profilo</h2><button class="btn" data-v="home">â† Home</button></div>
+  return `<div class="sectionHead"><h2>Profilo</h2><button class="btn" data-v="home">← Home</button></div>
   <div class="card"><b>${esc(name())}</b><div class="muted">${esc(p.email)}</div>
   <div style="margin-top:10px"><b>Livello</b><div>${esc(p.level||"Non indicato")}</div>
   <div class="muted tiny">${p.levelStatus==="certified"?"Certificato da "+esc(p.levelCertifiedBy||"istruttore"):"Auto dichiarato"}</div></div></div>`;
 }
 
 function lessonsClient(c){
-  return `<div class="sectionHead"><h2>Lezioni e corsi</h2><button class="btn" data-v="home">â† Home</button></div>
+  return `<div class="sectionHead"><h2>Lezioni e corsi</h2><button class="btn" data-v="home">← Home</button></div>
     <div class="card ok">
       <b>${INSTRUCTOR.name}</b>
       <div class="muted">${INSTRUCTOR.title}</div>
-      <div class="tiny muted" style="margin-top:6px">Classi tecniche: massimo 4 partecipanti â€¢ 15 â‚¬ a persona fino al 31/10/2026, poi 17 â‚¬.</div>
+      <div class="tiny muted" style="margin-top:6px">Classi tecniche: massimo 4 partecipanti • 15 € a persona fino al 31/10/2026, poi 17 €.</div>
     </div>
-    <div id="lessonList" class="list"><div class="card muted">Caricamento disponibilitÃ â€¦</div></div>`;
+    <div id="lessonList" class="list"><div class="card muted">Caricamento disponibilità…</div></div>`;
 }
 
 async function cards(club,types=null){
@@ -287,15 +287,15 @@ async function cards(club,types=null){
   const a=s.docs.map(d=>({id:d.id,...d.data()}))
     .filter(x=>(x.status||"approved")==="approved")
     .filter(x=>!types||types.includes(x.type));
-  return a.length?a.map(x=>`<div class="card"><div><b>${esc(x.title||x.type)}</b><div class="muted">${esc(x.type)} â€¢ ${esc(x.date||"")} ${esc(x.time||"")} â€¢ ${esc(x.court||"")}</div></div><button class="btn">Dettagli</button></div>`).join(""):`<div class="card muted">Nessuna attivitÃ  pubblicata al momento.</div>`;
+  return a.length?a.map(x=>`<div class="card"><div><b>${esc(x.title||x.type)}</b><div class="muted">${esc(x.type)} • ${esc(x.date||"")} ${esc(x.time||"")} • ${esc(x.court||"")}</div></div><button class="btn">Dettagli</button></div>`).join(""):`<div class="card muted">Nessuna attività pubblicata al momento.</div>`;
 }
 
 function basicLessonInfo(x){
   const booked=Number(x.booked||0),cap=Number(x.capacity||1),left=Math.max(0,cap-booked);
   const state=left===0?"Completa":booked>0?"In organizzazione":"Disponibile";
   const price=x.activityType==="Classe tecnica"||x.type==="Lezione di gruppo"
-    ? `${x.pricePerPerson??15} â‚¬ / persona`
-    : `${x.pricePerPerson??35} â‚¬ oppure pacchetto X1`;
+    ? `${x.pricePerPerson??15} € / persona`
+    : `${x.pricePerPerson??35} € oppure pacchetto X1`;
   return {booked,cap,left,state,price};
 }
 
@@ -306,9 +306,9 @@ function lessonCard(x,clientMode=true,selectable=false){
     ${selectable?`<input type="checkbox" class="lesson-select" data-lesson-id="${x.id}" style="width:22px;min-width:22px;height:22px">`:""}
     <div style="flex:1">
       <b>${esc(x.title)}</b>
-      <div class="muted">${esc(club)} â€¢ ${esc(x.date)} â€¢ ${esc(x.time)}â€“${esc(x.endTime||"")}</div>
-      <div class="tiny">${esc(x.instructorName||INSTRUCTOR.name)} â€¢ ${esc(x.instructorTitle||INSTRUCTOR.title)}</div>
-      <div class="tiny muted" style="margin-top:5px">${esc(state)} â€¢ ${booked}/${cap} iscritti â€¢ ${left===0?"Nessun posto libero":`Mancano ${left} ${left===1?"persona":"persone"} per chiuderla`} â€¢ ${price}</div>
+      <div class="muted">${esc(club)} • ${esc(x.date)} • ${esc(x.time)}–${esc(x.endTime||"")}</div>
+      <div class="tiny">${esc(x.instructorName||INSTRUCTOR.name)} • ${esc(x.instructorTitle||INSTRUCTOR.title)}</div>
+      <div class="tiny muted" style="margin-top:5px">${esc(state)} • ${booked}/${cap} iscritti • ${left===0?"Nessun posto libero":`Mancano ${left} ${left===1?"persona":"persone"} per chiuderla`} • ${price}</div>
     </div>
     ${clientMode?`<button class="primary" data-book-lesson="${x.id}" ${left===0?"disabled":""}>${left===0?"Completa":"Prenota"}</button>`:`<button class="btn" data-share-lesson="${x.id}">Condividi</button>`}
   </div>`;
@@ -319,7 +319,7 @@ async function loadLessonsClient(c){
   const list=s.docs.map(d=>({id:d.id,...d.data()}))
     .filter(x=>x.module==="courses_lessons_v1" && (x.status||"approved")==="approved")
     .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-  $("lessonList").innerHTML=list.length?list.map(x=>lessonCard(x,true,false)).join(""):`<div class="card muted">Nessuna disponibilitÃ  pubblicata per questo centro.</div>`;
+  $("lessonList").innerHTML=list.length?list.map(x=>lessonCard(x,true,false)).join(""):`<div class="card muted">Nessuna disponibilità pubblicata per questo centro.</div>`;
   document.querySelectorAll("[data-book-lesson]").forEach(b=>b.onclick=()=>bookLessons([b.dataset.bookLesson]));
 }
 
@@ -348,16 +348,16 @@ async function loadDirectLessons(ids){
       if(snap.exists())items.push({id:snap.id,...snap.data()});
     }
     if(!items.length){
-      $("lessonDirectCard").innerHTML=`<div class="card muted">Le disponibilitÃ  condivise non sono piÃ¹ disponibili.</div>`;
+      $("lessonDirectCard").innerHTML=`<div class="card muted">Le disponibilità condivise non sono più disponibili.</div>`;
       return;
     }
     $("lessonDirectCard").innerHTML=`
-      <div class="card ok"><b>Scegli una o piÃ¹ lezioni</b><div class="muted tiny">Puoi selezionare piÃ¹ disponibilitÃ  e prenotarle insieme.</div></div>
+      <div class="card ok"><b>Scegli una o più lezioni</b><div class="muted tiny">Puoi selezionare più disponibilità e prenotarle insieme.</div></div>
       ${items.map(x=>{
         const {booked,cap,left,price}=basicLessonInfo(x);
         return `<label class="card ${left===0?"bad":booked>0?"notice":"ok"}" style="display:flex;gap:12px;align-items:center">
           <input type="checkbox" class="direct-lesson-select" value="${x.id}" ${left===0?"disabled":""} style="width:22px;min-width:22px;height:22px">
-          <div style="flex:1"><b>${esc(x.title)}</b><div class="muted">${esc(CLUBS[x.clubId]?.name||x.clubId)} â€¢ ${esc(x.date)} â€¢ ${esc(x.time)}â€“${esc(x.endTime||"")}</div><div class="tiny muted">${booked}/${cap} iscritti â€¢ ${left} posti liberi â€¢ ${price}</div></div>
+          <div style="flex:1"><b>${esc(x.title)}</b><div class="muted">${esc(CLUBS[x.clubId]?.name||x.clubId)} • ${esc(x.date)} • ${esc(x.time)}–${esc(x.endTime||"")}</div><div class="tiny muted">${booked}/${cap} iscritti • ${left} posti liberi • ${price}</div></div>
         </label>`;
       }).join("")}
       <button id="bookSelectedLessons" class="primary" style="width:100%;margin-top:10px">Prenota le lezioni selezionate</button>`;
@@ -383,11 +383,11 @@ async function bookLessons(activityIds){
       for(const ref of bookingRefs)bookingSnaps.push(await tx.get(ref));
 
       activitySnaps.forEach((snap,i)=>{
-        if(!snap.exists())throw new Error("Una delle lezioni non Ã¨ piÃ¹ disponibile.");
-        if(bookingSnaps[i].exists())throw new Error("Sei giÃ  iscritto a una delle lezioni selezionate.");
+        if(!snap.exists())throw new Error("Una delle lezioni non è più disponibile.");
+        if(bookingSnaps[i].exists())throw new Error("Sei già iscritto a una delle lezioni selezionate.");
         const a=snap.data();
         const booked=Number(a.booked||0),capacity=Number(a.capacity||1);
-        if(booked>=capacity)throw new Error(`La lezione "${a.title}" Ã¨ giÃ  completa.`);
+        if(booked>=capacity)throw new Error(`La lezione "${a.title}" è già completa.`);
       });
 
       activitySnaps.forEach((snap,i)=>{
@@ -427,7 +427,7 @@ function instructor(){
     <label>Club</label><select id="insClub">${clubs.map(id=>`<option value="${id}" ${id===S.club?"selected":""}>${CLUBS[id].name}</option>`).join("")}</select>
   </div>
   <div class="card ok"><div><b>Le mie lezioni</b><div class="muted tiny">Visualizza iscritti e posti mancanti.</div></div><button id="openInstructorLessons" class="primary">Apri</button></div>
-  <h2>Crea attivitÃ </h2>
+  <h2>Crea attività</h2>
   <form id="insForm" class="card">
     <div class="row"><div><label>Tipo</label><select id="insType"><option>Partita libera</option><option>Lezione X1</option><option>Lezione X2</option><option>Lezione di gruppo</option><option>Corso</option><option>Clinic</option><option>Torneo</option><option>Campionato</option><option>Evento</option><option>Blocco campo</option></select></div><div><label>Campo</label><select id="insCourt">${c.courts.map(x=>`<option>${x}</option>`).join("")}</select></div></div>
     <div class="row"><div><label>Data</label><input id="insDate" type="date" required></div><div><label>Ora</label><input id="insTime" type="time" value="18:30" required></div></div>
@@ -444,8 +444,8 @@ function instructor(){
 }
 
 async function instructorLessons(){
-  $("main").innerHTML=`<div class="sectionHead"><h2>Le mie lezioni</h2><button id="instructorLessonsBack" class="btn">â† Area istruttore</button></div>
-  <div id="instructorLessonList" class="list"><div class="card muted">Caricamentoâ€¦</div></div>`;
+  $("main").innerHTML=`<div class="sectionHead"><h2>Le mie lezioni</h2><button id="instructorLessonsBack" class="btn">← Area istruttore</button></div>
+  <div id="instructorLessonList" class="list"><div class="card muted">Caricamento…</div></div>`;
   $("instructorLessonsBack").onclick=()=>{S.view="home";instructor()};
   const s=await getDocs(query(collection(db,"activities"),where("module","==","courses_lessons_v1")));
   const bookings=await getDocs(collection(db,"activity_bookings"));
@@ -463,14 +463,14 @@ async function sendRequest(e){
     court:$("insCourt").value,date:$("insDate").value,time:t,duration:d,capacity:+$("insCapacity").value,
     title:$("insTitle").value.trim(),note:$("insNote").value.trim(),status:"pending",createdAt:serverTimestamp()
   });
-  alert("Richiesta inviata all'Admin. Non Ã¨ ancora visibile ai clienti.");
+  alert("Richiesta inviata all'Admin. Non è ancora visibile ai clienti.");
   e.target.reset();loadRequests();
 }
 async function loadRequests(){
   const s=await getDocs(query(collection(db,"activity_requests"),where("instructorId","==",S.user.uid)));
   $("insRequests").innerHTML=s.empty?`<div class="card muted">Nessuna richiesta.</div>`:s.docs.map(d=>{
     const r=d.data();
-    return`<div class="card ${r.status==="pending"?"notice":r.status==="approved"?"ok":"bad"}"><div><b>${esc(r.title)}</b><div class="muted">${esc(r.type)} â€¢ ${esc(CLUBS[r.clubId]?.name||r.clubId)}</div><div class="tiny">Stato: ${r.status==="pending"?"IN ATTESA":r.status==="approved"?"APPROVATA":"RIFIUTATA"}</div></div></div>`;
+    return`<div class="card ${r.status==="pending"?"notice":r.status==="approved"?"ok":"bad"}"><div><b>${esc(r.title)}</b><div class="muted">${esc(r.type)} • ${esc(CLUBS[r.clubId]?.name||r.clubId)}</div><div class="tiny">Stato: ${r.status==="pending"?"IN ATTESA":r.status==="approved"?"APPROVATA":"RIFIUTATA"}</div></div></div>`;
   }).join("");
 }
 
@@ -481,14 +481,14 @@ function admin(){
   S.club=S.club||"eden";
   const c=CLUBS[S.club];
   $("main").innerHTML=`<div class="card">
-    <div class="top"><div><b>Centro di controllo</b><div class="muted tiny">Solo Admin puÃ² vedere tutte le anteprime.</div></div><span class="rolebadge">ADMIN</span></div>
+    <div class="top"><div><b>Centro di controllo</b><div class="muted tiny">Solo Admin può vedere tutte le anteprime.</div></div><span class="rolebadge">ADMIN</span></div>
     <label>Club</label><select id="adminClub">${Object.values(CLUBS).map(x=>`<option value="${x.id}" ${x.id===S.club?"selected":""}>${x.name}</option>`).join("")}</select>
   </div>
-  <div class="kpis"><div class="card"><div class="muted tiny">Richieste istruttori</div><div id="pending" class="kpi">â€”</div></div><div class="card"><div class="muted tiny">AttivitÃ  pubblicate</div><div id="published" class="kpi">â€”</div></div></div>
+  <div class="kpis"><div class="card"><div class="muted tiny">Richieste istruttori</div><div id="pending" class="kpi">—</div></div><div class="card"><div class="muted tiny">Attività pubblicate</div><div id="published" class="kpi">—</div></div></div>
   <h2>Corsi e lezioni</h2>
-  <div class="card ok"><div><b>${INSTRUCTOR.name}</b><div class="muted">${INSTRUCTOR.title}</div><div class="tiny muted">Programmazione 14â€“26 settembre 2026 â€¢ EDEN + Happy Time</div></div><button id="openLessonsAdmin" class="primary">Apri calendario</button></div>
+  <div class="card ok"><div><b>${INSTRUCTOR.name}</b><div class="muted">${INSTRUCTOR.title}</div><div class="tiny muted">Programmazione 14–26 settembre 2026 • EDEN + Happy Time</div></div><button id="openLessonsAdmin" class="primary">Apri calendario</button></div>
   <h2>Richieste istruttori</h2><div id="queue" class="list"></div>
-  <h2>Configurazione club</h2><div class="card"><b>${c.name}</b><div class="muted">Campi: ${c.courts.join(", ")}</div><div class="muted">Lunâ€“Ven ${c.weekday} â€¢ Weekend ${c.weekend}</div><div class="muted">Partite libere: ${c.freePlay?"attive":"non gestite"}</div></div>`;
+  <h2>Configurazione club</h2><div class="card"><b>${c.name}</b><div class="muted">Campi: ${c.courts.join(", ")}</div><div class="muted">Lun–Ven ${c.weekday} • Weekend ${c.weekend}</div><div class="muted">Partite libere: ${c.freePlay?"attive":"non gestite"}</div></div>`;
 
   $("adminClub").onchange=e=>{S.club=e.target.value;admin()};
   $("openLessonsAdmin").onclick=()=>{S.view="lessonsAdmin";admin()};
@@ -511,34 +511,34 @@ function lessonStaffCard(x,bookings,isAdminView=true){
       ${isAdminView?`<input type="checkbox" class="lesson-select" data-lesson-id="${x.id}" style="width:22px;min-width:22px;height:22px;margin-top:4px">`:""}
       <div style="flex:1">
         <b>${esc(x.title)}</b>
-        <div class="muted">${esc(CLUBS[x.clubId]?.name||x.clubId)} â€¢ ${esc(x.date)} â€¢ ${esc(x.time)}â€“${esc(x.endTime||"")}</div>
-        <div class="tiny muted">${state} â€¢ ${booked}/${cap} iscritti â€¢ ${left===0?"CHIUSA":`Mancano ${left} ${left===1?"persona":"persone"} per chiuderla`} â€¢ ${price}</div>
+        <div class="muted">${esc(CLUBS[x.clubId]?.name||x.clubId)} • ${esc(x.date)} • ${esc(x.time)}–${esc(x.endTime||"")}</div>
+        <div class="tiny muted">${state} • ${booked}/${cap} iscritti • ${left===0?"CHIUSA":`Mancano ${left} ${left===1?"persona":"persone"} per chiuderla`} • ${price}</div>
       </div>
       ${isAdminView?`<button class="btn" data-share-lesson="${x.id}">Condividi</button>`:""}
     </div>
     <div style="margin-top:10px;border-top:1px solid #173950;padding-top:8px">
       <div class="tiny muted" style="margin-bottom:6px">Giocatori iscritti</div>
       ${bookings.length
-        ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${bookings.map(b=>`<button class="btn" ${isAdminView?`data-player-id="${b.userId}"`:""} style="padding:7px 9px">${esc(b.userName||b.userEmail||"Giocatore")}${b.playerLevel?` Â· ${esc(b.playerLevel)}`:""}</button>`).join("")}</div>`
+        ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${bookings.map(b=>`<button class="btn" ${isAdminView?`data-player-id="${b.userId}"`:""} style="padding:7px 9px">${esc(b.userName||b.userEmail||"Giocatore")}${b.playerLevel?` · ${esc(b.playerLevel)}`:""}</button>`).join("")}</div>`
         : `<div class="tiny muted">Nessun giocatore iscritto.</div>`}
     </div>
   </div>`;
 }
 
 async function adminLessons(){
-  $("main").innerHTML=`<div class="sectionHead"><h2>Corsi e lezioni</h2><button id="lessonsAdminBack" class="btn">â† Gestionale</button></div>
-  <div class="card ok"><b>${INSTRUCTOR.name}</b><div class="muted">${INSTRUCTOR.title}</div><div class="tiny muted">Prima apertura controllata â€¢ 14â€“26 settembre 2026</div></div>
+  $("main").innerHTML=`<div class="sectionHead"><h2>Corsi e lezioni</h2><button id="lessonsAdminBack" class="btn">← Gestionale</button></div>
+  <div class="card ok"><b>${INSTRUCTOR.name}</b><div class="muted">${INSTRUCTOR.title}</div><div class="tiny muted">Prima apertura controllata • 14–26 settembre 2026</div></div>
   <div class="card">
     <div class="row">
       <div><label>Centro</label><select id="lessonFilterClub"><option value="all">Tutti</option><option value="eden">EDEN</option><option value="happy">Happy Time</option></select></div>
       <div><label>Tipo</label><select id="lessonFilterType"><option value="all">Tutti</option><option value="Classe tecnica">Classi tecniche</option><option value="Lezione X1">X1</option></select></div>
     </div>
-    <div class="actions"><button id="seedLessonsBtn" class="primary">Carica programmazione 14â€“26/9</button><button id="refreshLessonsBtn" class="btn">Aggiorna</button></div>
+    <div class="actions"><button id="seedLessonsBtn" class="primary">Carica programmazione 14–26/9</button><button id="refreshLessonsBtn" class="btn">Aggiorna</button></div>
     <div class="actions"><button id="selectAllLessonsBtn" class="btn">Seleziona tutte</button><button id="clearLessonsBtn" class="btn">Deseleziona</button></div>
-    <button id="shareSelectedLessonsBtn" class="primary" style="width:100%;margin-top:8px">ðŸ“² Condividi lezioni selezionate su WhatsApp</button>
-    <div class="tiny muted" style="margin-top:8px">Nel messaggio il giocatore apre un unico link e puÃ² scegliere una o piÃ¹ lezioni a cui iscriversi.</div>
+    <button id="shareSelectedLessonsBtn" class="primary" style="width:100%;margin-top:8px">📲 Condividi lezioni selezionate su WhatsApp</button>
+    <div class="tiny muted" style="margin-top:8px">Nel messaggio il giocatore apre un unico link e può scegliere una o più lezioni a cui iscriversi.</div>
   </div>
-  <div id="adminLessonList" class="list"><div class="card muted">Caricamentoâ€¦</div></div>`;
+  <div id="adminLessonList" class="list"><div class="card muted">Caricamento…</div></div>`;
 
   $("lessonsAdminBack").onclick=()=>{S.view="home";admin()};
   $("lessonFilterClub").value=S.lessonFilterClub;
@@ -554,7 +554,7 @@ async function adminLessons(){
 }
 
 async function seedLessons(){
-  if(!confirm("Carico le 18 disponibilitÃ  reali del 14â€“26 settembre? Non verranno duplicate se sono giÃ  presenti."))return;
+  if(!confirm("Carico le 18 disponibilità reali del 14–26 settembre? Non verranno duplicate se sono già presenti."))return;
   const existing=await getDocs(query(collection(db,"activities"),where("module","==","courses_lessons_v1")));
   const keys=new Set(existing.docs.map(d=>d.data().seedKey).filter(Boolean));
   let added=0;
@@ -574,7 +574,7 @@ async function seedLessons(){
       instructorTitle:INSTRUCTOR.title,
       date,time:start,endTime:end,duration:60,capacity,booked:0,
       pricePerPerson:price,
-      pricingRule:activityType==="Classe tecnica"?"15 â‚¬ fino al 31/10/2026; 17 â‚¬ dal 01/11/2026":"35 â‚¬ singola o pacchetto X1",
+      pricingRule:activityType==="Classe tecnica"?"15 € fino al 31/10/2026; 17 € dal 01/11/2026":"35 € singola o pacchetto X1",
       status:"approved",
       bookingState:"available",
       visibility:"public",
@@ -584,7 +584,7 @@ async function seedLessons(){
     });
     added++;
   }
-  alert(added?`${added} disponibilitÃ  caricate.`:"Programmazione giÃ  presente: nessun duplicato creato.");
+  alert(added?`${added} disponibilità caricate.`:"Programmazione già presente: nessun duplicato creato.");
   loadAdminLessons();
 }
 
@@ -601,7 +601,7 @@ async function loadAdminLessons(){
 
   $("adminLessonList").innerHTML=list.length
     ? list.map(x=>lessonStaffCard(x,grouped[x.id]||[],true)).join("")
-    : `<div class="card muted">Nessuna disponibilitÃ  caricata. Premi â€œCarica programmazione 14â€“26/9â€.</div>`;
+    : `<div class="card muted">Nessuna disponibilità caricata. Premi “Carica programmazione 14–26/9”.</div>`;
 
   document.querySelectorAll("[data-share-lesson]").forEach(b=>b.onclick=()=>shareLesson(b.dataset.shareLesson));
   document.querySelectorAll("[data-player-id]").forEach(b=>b.onclick=()=>openPlayer(b.dataset.playerId));
@@ -618,9 +618,9 @@ async function shareSelectedLessons(){
   const link=`${location.origin}${location.pathname}?lessons=${encodeURIComponent(ids.join(","))}`;
   const lines=selected.map(x=>{
     const info=basicLessonInfo(x);
-    return `â€¢ ${x.title} â€” ${CLUBS[x.clubId]?.name||x.clubId}, ${x.date} ${x.time}-${x.endTime} (${info.left} posti liberi)`;
+    return `• ${x.title} — ${CLUBS[x.clubId]?.name||x.clubId}, ${x.date} ${x.time}-${x.endTime} (${info.left} posti liberi)`;
   }).join("\n");
-  const message=`ðŸŽ¾ DISPONIBILITÃ€ LEZIONI â€” FRANCESCO LIGNOLA\n\n${lines}\n\nApri il link e seleziona una o piÃ¹ lezioni a cui vuoi iscriverti:\n${link}`;
+  const message=`🎾 DISPONIBILITÀ LEZIONI — FRANCESCO LIGNOLA\n\n${lines}\n\nApri il link e seleziona una o più lezioni a cui vuoi iscriverti:\n${link}`;
   const wa=`https://wa.me/?text=${encodeURIComponent(message)}`;
   window.open(wa,"_blank");
 }
@@ -629,7 +629,7 @@ async function shareLesson(id){
   const x=S.adminLessons.find(a=>a.id===id);
   const link=`${location.origin}${location.pathname}?lessons=${encodeURIComponent(id)}`;
   const message=x
-    ? `ðŸŽ¾ ${x.title}\n${CLUBS[x.clubId]?.name||x.clubId} â€¢ ${x.date} â€¢ ${x.time}-${x.endTime}\nFrancesco Lignola â€” Istruttore Nazionale AICS\n\nPrenota qui:\n${link}`
+    ? `🎾 ${x.title}\n${CLUBS[x.clubId]?.name||x.clubId} • ${x.date} • ${x.time}-${x.endTime}\nFrancesco Lignola — Istruttore Nazionale AICS\n\nPrenota qui:\n${link}`
     : `Prenota la lezione:\n${link}`;
   window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,"_blank");
 }
@@ -641,8 +641,8 @@ function openPlayer(userId){
 }
 
 async function adminPlayerDetail(){
-  $("main").innerHTML=`<div class="sectionHead"><h2>Anagrafica giocatore</h2><button id="playerBack" class="btn">â† Corsi e lezioni</button></div>
-  <div id="playerDetailBody" class="list"><div class="card muted">Caricamentoâ€¦</div></div>`;
+  $("main").innerHTML=`<div class="sectionHead"><h2>Anagrafica giocatore</h2><button id="playerBack" class="btn">← Corsi e lezioni</button></div>
+  <div id="playerDetailBody" class="list"><div class="card muted">Caricamento…</div></div>`;
   $("playerBack").onclick=()=>{S.view="lessonsAdmin";admin()};
 
   try{
@@ -668,11 +668,11 @@ async function adminPlayerDetail(){
       </div>
       <div class="card">
         <b>Pacchetti / abbonamenti</b>
-        ${packages.length?packages.map(x=>`<div style="margin-top:8px"><b>${esc(x.name||x.type||"Pacchetto")}</b><div class="muted tiny">Residuo: ${esc(x.remaining??x.residual??"â€”")} â€¢ Stato: ${esc(x.status||"attivo")} ${x.expiresAt?`â€¢ Scadenza: ${esc(x.expiresAt)}`:""}</div></div>`).join(""):`<div class="muted tiny" style="margin-top:8px">Nessun pacchetto registrato nel nuovo archivio.</div>`}
+        ${packages.length?packages.map(x=>`<div style="margin-top:8px"><b>${esc(x.name||x.type||"Pacchetto")}</b><div class="muted tiny">Residuo: ${esc(x.remaining??x.residual??"—")} • Stato: ${esc(x.status||"attivo")} ${x.expiresAt?`• Scadenza: ${esc(x.expiresAt)}`:""}</div></div>`).join(""):`<div class="muted tiny" style="margin-top:8px">Nessun pacchetto registrato nel nuovo archivio.</div>`}
       </div>
       <div class="card">
         <b>Pagamenti</b>
-        ${payments.length?payments.map(x=>`<div style="margin-top:8px"><b>${esc(x.description||"Pagamento")}</b><div class="muted tiny">${esc(x.amount??"")} ${esc(x.currency||"EUR")} â€¢ ${esc(x.status||"")} ${x.date?`â€¢ ${esc(x.date)}`:""}</div></div>`).join(""):`<div class="muted tiny" style="margin-top:8px">Nessun movimento di pagamento registrato nel nuovo archivio.</div>`}
+        ${payments.length?payments.map(x=>`<div style="margin-top:8px"><b>${esc(x.description||"Pagamento")}</b><div class="muted tiny">${esc(x.amount??"")} ${esc(x.currency||"EUR")} • ${esc(x.status||"")} ${x.date?`• ${esc(x.date)}`:""}</div></div>`).join(""):`<div class="muted tiny" style="margin-top:8px">Nessun movimento di pagamento registrato nel nuovo archivio.</div>`}
       </div>`;
   }catch(e){
     $("playerDetailBody").innerHTML=`<div class="card bad">Impossibile aprire l'anagrafica: ${esc(e.message||"errore")}</div>`;
@@ -685,7 +685,7 @@ async function loadQueue(){
   const r=rs.docs.map(d=>({id:d.id,...d.data()}));
   $("pending").textContent=r.filter(x=>x.status==="pending").length;
   $("published").textContent=as.size;
-  $("queue").innerHTML=r.length?r.map(x=>`<div class="card ${x.status==="pending"?"notice":x.status==="approved"?"ok":"bad"}"><div><b>${esc(x.title)}</b><div class="muted">${esc(x.instructorName)} â€¢ ${esc(x.type)} â€¢ ${esc(x.date||"")} ${esc(x.time||"")}</div></div>${x.status==="pending"?`<div class="actions"><button class="primary" data-a="${x.id}">Approva</button><button class="danger" data-r="${x.id}">Rifiuta</button></div>`:`<span class="rolebadge">${x.status.toUpperCase()}</span>`}</div>`).join(""):`<div class="card muted">Nessuna richiesta.</div>`;
+  $("queue").innerHTML=r.length?r.map(x=>`<div class="card ${x.status==="pending"?"notice":x.status==="approved"?"ok":"bad"}"><div><b>${esc(x.title)}</b><div class="muted">${esc(x.instructorName)} • ${esc(x.type)} • ${esc(x.date||"")} ${esc(x.time||"")}</div></div>${x.status==="pending"?`<div class="actions"><button class="primary" data-a="${x.id}">Approva</button><button class="danger" data-r="${x.id}">Rifiuta</button></div>`:`<span class="rolebadge">${x.status.toUpperCase()}</span>`}</div>`).join(""):`<div class="card muted">Nessuna richiesta.</div>`;
   document.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>approve(b.dataset.a,r.find(x=>x.id===b.dataset.a)));
   document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>reject(b.dataset.r));
 }
