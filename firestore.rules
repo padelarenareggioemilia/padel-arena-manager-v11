@@ -15,8 +15,6 @@ service cloud.firestore {
     match /activities/{id} {
       allow read: if signedIn();
       allow create, delete: if isAdmin();
-
-      // Cliente può aggiornare soltanto il conteggio iscritti durante una prenotazione.
       allow update: if isAdmin() || (
         signedIn()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['booked','bookingState','updatedAt'])
@@ -31,6 +29,7 @@ service cloud.firestore {
         && request.resource.data.status == 'confirmed';
 
       allow read: if isAdmin()
+        || isInstructor()
         || (signedIn() && resource.data.userId == request.auth.uid);
 
       allow update, delete: if isAdmin();
@@ -49,6 +48,18 @@ service cloud.firestore {
 
     match /packages/{id} {
       allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /user_packages/{id} {
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    match /payments/{id} {
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
       allow write: if isAdmin();
     }
 
