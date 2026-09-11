@@ -1,39 +1,47 @@
-# Padel Arena Manager v11 — prototipo installabile
+# V11 — Gestione Corsi e Lezioni v1
 
-Questa è una prima PWA (Progressive Web App) funzionante, pensata per smartphone e desktop.
+Questa versione aggiorna il file `app.js` esistente e aggiunge la prima gestione reale
+di Corsi e Lezioni per:
 
-## Cosa contiene già
-- Brand Padel Arena Manager
-- Selezione multi-centro: Eden Padel Club / Happy Time
-- Loghi reali dei centri
-- Affiliazione AICS
-- Moduli attivabili/disattivabili per centro
-- Eden: Gioca + prenotazione campi + lezioni/corsi + eventi + tesseramento
-- Happy Time: lezioni/corsi + eventi + tesseramento, senza partite libere
-- Home cliente
-- Vista pannello prenotazione campi
-- Pacchetti/listino Eden
-- Tesseramento
-- Profilo cliente
-- Predisposizione per tornei/eventi
+**Francesco Lignola — Istruttore Nazionale AICS**
 
-## Avvio sul computer
-Serve Python 3.
+## Cosa fa
 
-Windows:
-1. Estrai lo ZIP.
-2. Doppio click su `AVVIA_WINDOWS.bat`.
-3. Si apre il browser su http://localhost:8080
+- Nuova sezione Admin `Corsi e lezioni`
+- Calendario reale 14–26 settembre 2026
+- EDEN + Happy Time
+- Classi tecniche massimo 4
+- X1 massimo 1
+- Prezzo classi tecniche 15 € fino al 31/10/2026
+- Regola già predisposta a 17 € dal 01/11/2026
+- X1 a 35 € oppure pacchetto
+- Filtri centro / tipo
+- Caricamento programmazione senza duplicati
+- Link condivisibile per ogni disponibilità
+- Vista Cliente `Lezioni e corsi`
+- Prenotazione con chiusura automatica al raggiungimento della capienza
+- Livello del cliente salvato nella prenotazione
+- Martedì e giovedì pausa pranzo NON pubblicati: restano disponibilità X1/X2 su richiesta
 
-Mac/Linux:
-1. Estrai lo ZIP.
-2. Apri Terminale nella cartella.
-3. Esegui `./AVVIA_MAC_LINUX.sh`
-4. Apri http://localhost:8080
+## File da sostituire
 
-## Installazione come app
-Apri la PWA in Chrome/Edge da un server HTTPS o localhost.
-Nel menu del browser scegli "Installa app" / "Aggiungi a schermata Home".
+1. `app.js` -> sostituire quello nella root del repository.
+2. `firestore.rules` -> aggiornare il file nel repository e poi pubblicare le stesse regole nella console Firebase.
 
-## Nota
-È un prototipo frontend. Non include ancora backend, login reale, database, pagamenti o sincronizzazione con AICS.
+`index.html` non va modificato.
+
+## Sequenza consigliata
+
+1. Carica `app.js` su GitHub.
+2. Carica `firestore.rules` su GitHub.
+3. In Firebase > Firestore > Regole, sostituisci le regole con il contenuto di `firestore.rules` e Pubblica.
+4. Apri V11 come Admin.
+5. Vai `Corsi e lezioni`.
+6. Premi `Carica programmazione 14–26/9`.
+7. Controlla le 18 disponibilità.
+8. Usa `Condividi` per ottenere il link diretto.
+
+## Nota importante
+
+Il caricamento della programmazione avviene SOLO quando l'Admin preme il pulsante.
+Quindi installare il codice non pubblica automaticamente gli slot.

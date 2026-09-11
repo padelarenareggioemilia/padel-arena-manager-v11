@@ -1,57 +1,39 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function profile() {
-      return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data;
-    }
-
-    function hasRole(role) {
-      return signedIn() &&
-        (
-          profile().role == role ||
-          (profile().roles is list && role in profile().roles)
-        );
-    }
-
-    function isAdmin() {
-      return hasRole('super_admin') ||
-             hasRole('club_owner') ||
-             hasRole('club_admin') ||
-             hasRole('admin');
-    }
-
-    function isInstructor() {
-      return hasRole('instructor');
-    }
+    function signedIn() { return request.auth != null; }
+    function me() { return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data; }
+    function isAdmin() { return signedIn() && me().role == 'admin'; }
+    function isInstructor() { return signedIn() && me().role == 'instructor'; }
 
     match /profiles/{uid} {
-      allow create: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() && request.auth.uid == uid && request.resource.data.role == 'client';
       allow read, update: if signedIn() && (request.auth.uid == uid || isAdmin());
       allow delete: if isAdmin();
     }
 
-    match /clubs/{clubId} {
+    match /activities/{id} {
       allow read: if signedIn();
-      allow create, update, delete: if isAdmin();
+      allow create, delete: if isAdmin();
+
+      // Cliente può aggiornare soltanto il conteggio iscritti durante una prenotazione.
+      allow update: if isAdmin() || (
+        signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['booked','bookingState','updatedAt'])
+        && request.resource.data.booked == resource.data.booked + 1
+        && request.resource.data.booked <= resource.data.capacity
+      );
     }
 
-    match /resources/{resourceId} {
-      allow read: if signedIn();
-      allow create, update, delete: if isAdmin();
-    }
+    match /activity_bookings/{id} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'confirmed';
 
-    match /activities/{activityId} {
-      allow read: if signedIn();
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
 
-      // Core 01: scritture definitive attività ancora controllate da Admin.
-      // I flussi Cliente/Istruttore verranno aperti nei pacchetti successivi
-      // con validazione puntuale dei campi.
-      allow create, update, delete: if isAdmin();
+      allow update, delete: if isAdmin();
     }
 
     match /activity_requests/{id} {
@@ -68,23 +50,6 @@ service cloud.firestore {
     match /packages/{id} {
       allow read: if signedIn();
       allow write: if isAdmin();
-    }
-
-    match /wallets/{uid} {
-      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
-      allow write: if isAdmin();
-    }
-
-    match /economic_movements/{movementId} {
-      allow read: if signedIn()
-        && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /audit_logs/{logId} {
-      allow read: if isAdmin();
-      allow create: if signedIn();
-      allow update, delete: if false;
     }
 
     match /{document=**} {
