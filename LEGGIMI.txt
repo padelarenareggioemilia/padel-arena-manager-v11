@@ -1,0 +1,17 @@
+PADEL ARENA MANAGER V11 - FIX CLIENTE FREE
+
+Contenuto:
+- app.js
+- index.html
+
+Caricamento su GitHub:
+1. Apri il repository padel-arena-manager-v11.
+2. Carica/sostituisci app.js e index.html nella root del repository.
+3. Conferma il commit.
+4. Non modificare Firebase e non cambiare le regole Firestore.
+
+Correzioni incluse:
+- errore Missing or insufficient permissions nel flusso cliente FREE
+- ordine corretto di collegamento guest_sessions / guest_players
+- modulo mobile verticale e leggibile
+- select e pulsanti utilizzabili su smartphone

@@ -96,10 +96,10 @@ async function loadGuestIdentity(){
   const stored=localStorage.getItem(guestStorageKey);
   if(stored){
     try{
+      await attachGuestSession(stored);
       const s=await getDoc(doc(db,"guest_players",stored));
       if(s.exists()){
         S.guestPlayer={id:s.id,...s.data()};
-        await attachGuestSession(s.id);
         return S.guestPlayer;
       }
     }catch(e){console.warn("Profilo ospite locale non disponibile",e)}
@@ -127,10 +127,10 @@ async function findExistingGuest(identifier){
   if(!lk.exists())return null;
   const data=lk.data();
   if(!data.playerId)return null;
+  await attachGuestSession(data.playerId);
   const p=await getDoc(doc(db,"guest_players",data.playerId));
   if(!p.exists())return null;
   S.guestPlayer={id:p.id,...p.data()};
-  await attachGuestSession(p.id);
   return S.guestPlayer;
 }
 
@@ -144,10 +144,11 @@ async function createGuestPlayer(data){
   for(const key of [phoneKey,emailKey].filter(Boolean)){
     const lk=await getDoc(doc(db,"player_lookup",key));
     if(lk.exists()&&lk.data().playerId){
-      const p=await getDoc(doc(db,"guest_players",lk.data().playerId));
+      const existingPlayerId=lk.data().playerId;
+      await attachGuestSession(existingPlayerId);
+      const p=await getDoc(doc(db,"guest_players",existingPlayerId));
       if(p.exists()){
         S.guestPlayer={id:p.id,...p.data()};
-        await attachGuestSession(p.id);
         return S.guestPlayer;
       }
     }
@@ -184,9 +185,9 @@ async function createGuestPlayer(data){
     if(emailKey)tx.set(doc(db,"player_lookup",emailKey),{playerId:playerRef.id,type:"email",updatedAt:serverTimestamp()});
   });
 
+  await attachGuestSession(playerRef.id);
   const p=await getDoc(playerRef);
   S.guestPlayer={id:p.id,...p.data()};
-  await attachGuestSession(p.id);
   return S.guestPlayer;
 }
 
@@ -205,7 +206,7 @@ function guestIdentityPanel(){
       <button id="guestLookupBtn" class="btn">Riconoscimi</button>
     </div>
   </div>
-  <form id="guestProfileForm" class="card">
+  <form id="guestProfileForm" class="card guest-form">
     <b>Prima prenotazione</b>
     <div class="muted tiny">Compila l'anagrafica una sola volta. Al prossimo accesso il sistema prover\u00E0 a riconoscerti automaticamente.</div>
     <div class="row">

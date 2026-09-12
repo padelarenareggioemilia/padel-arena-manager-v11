@@ -16,7 +16,20 @@ label{display:block;color:#9db4c5;font-size:12px;margin:10px 0 5px}input,select{
 .actions{display:flex;gap:8px;margin-top:10px}.actions>*{flex:1}.notice{border-left:4px solid #f1b84b}.ok{border-left:4px solid #64d28c}.bad{border-left:4px solid #df6672}.rolebadge{display:inline-block;padding:5px 8px;border-radius:999px;background:#143750;color:#bfe6ff;font-size:12px;font-weight:800}
 .bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(680px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#061522f2;border-top:1px solid #21445e;padding:9px 4px calc(8px + env(safe-area-inset-bottom));z-index:10}.bottom button{background:none;border:0;color:#b0c2ce;font-size:11px}
 .list{display:grid;gap:9px}.list .card{display:flex;justify-content:space-between;gap:10px;align-items:center}.kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px}.kpi{font-size:24px;font-weight:900}.previewbar{display:flex;gap:8px;overflow:auto;margin:10px 0}.previewbar button{white-space:nowrap}.sectionHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
-@media(max-width:520px){.row{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
+
+/* FIX CLIENTE FREE: i pannelli anagrafica non devono ereditare il layout flex delle card nella lista */
+#lessonDirectCard .guest-form,
+#lessonDirectCard .guest-identify{display:block;width:100%}
+#lessonDirectCard .guest-form .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#lessonDirectCard .guest-form input,
+#lessonDirectCard .guest-form select{min-width:0;width:100%}
+#lessonDirectCard .guest-form button{min-height:46px}
+
+@media(max-width:520px){
+  .row{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr 1fr}
+  #lessonDirectCard .guest-form .row{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
