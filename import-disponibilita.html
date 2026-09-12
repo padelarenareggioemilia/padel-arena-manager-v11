@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Importa lezioni · Padel Arena Manager V11</title>
+  <style>
+    :root{
+      --bg:#071824;--card:#0d2635;--line:#173950;--text:#f5f8fa;--muted:#9eb2c0;
+      --primary:#1f8cff;--ok:#123f34;--warn:#4a3c15;--bad:#4b1f27
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .wrap{max-width:1180px;margin:auto;padding:20px}
+    .top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+    .muted{color:var(--muted)} .tiny{font-size:.88rem}
+    .btn,.primary,.danger{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn{background:#16394e;color:white}.primary{background:var(--primary);color:white}.danger{background:#7d2635;color:white}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none!important}
+    input[type=file]{width:100%;padding:14px;background:#102f42;border:1px dashed #37627c;border-radius:12px;color:white}
+    .status{padding:10px 12px;border-radius:10px;margin-top:10px}.ok{background:var(--ok)}.warn{background:var(--warn)}.bad{background:var(--bad)}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th,td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+    th{position:sticky;top:0;background:#0b2230;z-index:1}
+    .tablewrap{overflow:auto;max-height:55vh;border:1px solid var(--line);border-radius:12px}
+    .pill{display:inline-block;padding:4px 7px;border-radius:999px;font-size:.78rem;font-weight:700}
+    .pill.ok{background:#1a5e4d}.pill.bad{background:#7d2635}.pill.warn{background:#7b651d}
+    a{color:#7dc1ff}.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .kpi{font-size:1.4rem;font-weight:800}
+    @media(max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1 style="margin:0">📥 Importa lezioni da Excel</h1>
+      <div class="muted">Strumento Admin separato dalla V11 principale</div>
+    </div>
+    <a class="btn" href="./">← Torna alla V11</a>
+  </div>
+
+  <div id="authCard" class="card">Verifica accesso Admin…</div>
+
+  <div id="app" class="hidden">
+    <div class="card">
+      <b>1. Seleziona il file Excel</b>
+      <div class="muted tiny" style="margin:6px 0 12px">
+        Usa il foglio <b>Disponibilita</b>. Ogni riga valida diventerà una nuova lezione autonoma con ID e link PRENOTA propri.
+      </div>
+      <input id="fileInput" type="file" accept=".xlsx,.xls">
+      <div class="actions" style="margin-top:10px">
+        <button id="clearBtn" class="btn" disabled>Reset</button>
+      </div>
+    </div>
+
+    <div id="summary" class="hidden">
+      <div class="kpis">
+        <div class="card"><div class="muted tiny">Righe Excel</div><div id="kRows" class="kpi">0</div></div>
+        <div class="card"><div class="muted tiny">Pronte</div><div id="kReady" class="kpi">0</div></div>
+        <div class="card"><div class="muted tiny">Conflitti</div><div id="kConflicts" class="kpi">0</div></div>
+        <div class="card"><div class="muted tiny">Errori</div><div id="kErrors" class="kpi">0</div></div>
+      </div>
+
+      <div id="message" class="status warn">Controllo in corso…</div>
+
+      <div class="card">
+        <div class="top">
+          <b>2. Anteprima e controlli</b>
+          <button id="importBtn" class="primary" disabled>Importa lezioni pronte</button>
+        </div>
+        <div class="muted tiny" style="margin:8px 0">
+          Le righe con errore o conflitto non vengono importate. Il controllo considera doppioni nel file e sovrapposizioni con le lezioni già presenti nella V11.
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Stato</th><th>Data</th><th>Ora</th><th>Centro</th><th>Campo</th>
+                <th>Tipo</th><th>Titolo</th><th>Posti</th><th>Prezzo</th><th>Nota</th>
+              </tr>
+            </thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="results" class="card hidden">
+      <b>3. Importazione completata</b>
+      <div id="resultsList" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import {
+  getFirestore,doc,getDoc,addDoc,collection,getDocs,query,where,serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyDpw8GsnYGupBc94qt4ZqC2af8TSuZ2tes",
+  authDomain:"padel-arena-manager-v11.firebaseapp.com",
+  projectId:"padel-arena-manager-v11",
+  storageBucket:"padel-arena-manager-v11.firebasestorage.app",
+  messagingSenderId:"140040431254",
+  appId:"1:140040431254:web:de0e76cac028088c1704b7"
+};
+
+const fb=initializeApp(firebaseConfig);
+const auth=getAuth(fb);
+const db=getFirestore(fb);
+const $=id=>document.getElementById(id);
+
+let currentUser=null;
+let parsedRows=[];
+let existingLessons=[];
+
+const CLUB_MAP={
+  "eden padel club":"eden",
+  "eden":"eden",
+  "happy time":"happy",
+  "happy time castellarano":"happy"
+};
+
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+function pad2(n){return String(n).padStart(2,"0")}
+
+function excelDateToISO(v){
+  if(v instanceof Date && !Number.isNaN(v.getTime())){
+    return `${v.getFullYear()}-${pad2(v.getMonth()+1)}-${pad2(v.getDate())}`;
+  }
+  if(typeof v==="number"){
+    const p=window.XLSX.SSF.parse_date_code(v);
+    if(p)return `${p.y}-${pad2(p.m)}-${pad2(p.d)}`;
+  }
+  const s=String(v??"").trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);
+  const m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+  if(m)return `${m[3]}-${pad2(m[2])}-${pad2(m[1])}`;
+  return "";
+}
+
+function excelTimeToHHMM(v){
+  if(v instanceof Date && !Number.isNaN(v.getTime()))return `${pad2(v.getHours())}:${pad2(v.getMinutes())}`;
+  if(typeof v==="number"){
+    const total=Math.round((v%1)*24*60);
+    return `${pad2(Math.floor(total/60)%24)}:${pad2(total%60)}`;
+  }
+  const s=String(v??"").trim();
+  const m=s.match(/^(\d{1,2}):(\d{2})/);
+  if(m)return `${pad2(m[1])}:${m[2]}`;
+  return "";
+}
+
+function minutes(hhmm){
+  const [h,m]=String(hhmm).split(":").map(Number);
+  return h*60+m;
+}
+
+function overlap(aStart,aEnd,bStart,bEnd){
+  return Math.max(minutes(aStart),minutes(bStart)) < Math.min(minutes(aEnd),minutes(bEnd));
+}
+
+function normalizeType(v){
+  const s=String(v??"").trim().toLowerCase();
+  if(s.includes("classe"))return {activityType:"Classe tecnica",type:"Lezione di gruppo"};
+  if(s.includes("x2"))return {activityType:"Lezione X2",type:"Lezione X2"};
+  return {activityType:"Lezione X1",type:"Lezione X1"};
+}
+
+function normalizePubblica(v){
+  const s=String(v??"SI").trim().toUpperCase();
+  return ["SI","SÌ","YES","1","TRUE","VERO"].includes(s);
+}
+
+function normalizeRow(raw,index){
+  const date=excelDateToISO(raw["Data"]);
+  const start=excelTimeToHHMM(raw["Ora inizio"]);
+  const end=excelTimeToHHMM(raw["Ora fine"]);
+  const centerLabel=String(raw["Centro"]??"").trim();
+  const clubId=CLUB_MAP[centerLabel.toLowerCase()]||"";
+  const court=String(raw["Campo"]??"").trim();
+  const title=String(raw["Titolo"]??"").trim();
+  const typ=normalizeType(raw["Tipo lezione"]);
+  const capacity=Number(raw["Capienza"]??1);
+  const price=Number(raw["Prezzo €"]??raw["Prezzo"]??0);
+  const instructorName=String(raw["Istruttore"]??"Francesco Lignola").trim()||"Francesco Lignola";
+  const instructorTitle=String(raw["Qualifica"]??"Istruttore Nazionale AICS").trim()||"Istruttore Nazionale AICS";
+  const pubblica=normalizePubblica(raw["Pubblica"]);
+  const note=String(raw["Note"]??"").trim();
+
+  const errors=[];
+  if(!date)errors.push("Data non valida");
+  if(!start)errors.push("Ora inizio non valida");
+  if(!end)errors.push("Ora fine non valida");
+  if(start&&end&&minutes(end)<=minutes(start))errors.push("Ora fine deve essere successiva");
+  if(!clubId)errors.push("Centro non riconosciuto");
+  if(!title)errors.push("Titolo mancante");
+  if(!Number.isFinite(capacity)||capacity<1)errors.push("Capienza non valida");
+  if(!Number.isFinite(price)||price<0)errors.push("Prezzo non valido");
+
+  return {
+    rowNumber:index+2,date,start,end,centerLabel,clubId,court,title,
+    activityType:typ.activityType,type:typ.type,capacity,price,
+    instructorName,instructorTitle,pubblica,note,errors,
+    conflict:false,conflictReason:"",status:""
+  };
+}
+
+function isFrancescoLesson(x){
+  const n=String(x.instructorName||"").toLowerCase();
+  return x.instructorId==="francesco-lignola" || n.includes("francesco") && n.includes("lignola");
+}
+
+function detectConflicts(rows){
+  const internalKeys=new Map();
+
+  for(const r of rows){
+    if(r.errors.length)continue;
+
+    const key=`${r.date}|${r.start}|${r.end}|${r.clubId}|${r.title.toLowerCase()}`;
+    if(internalKeys.has(key)){
+      r.conflict=true;
+      r.conflictReason=`Doppione nel file (riga ${internalKeys.get(key)})`;
+    }else{
+      internalKeys.set(key,r.rowNumber);
+    }
+
+    if(r.conflict)continue;
+
+    for(const e of existingLessons){
+      if(!e.date||!e.time)continue;
+      const eEnd=e.endTime || (()=> {
+        const dur=Number(e.duration||60);
+        const t=minutes(e.time)+dur;
+        return `${pad2(Math.floor(t/60)%24)}:${pad2(t%60)}`;
+      })();
+
+      if(e.date===r.date && overlap(r.start,r.end,e.time,eEnd)){
+        if(isFrancescoLesson(e)){
+          r.conflict=true;
+          r.conflictReason=`Francesco già impegnato ${e.time}-${eEnd} (${e.title||e.type||"lezione"})`;
+          break;
+        }
+        if(e.clubId===r.clubId && r.court && r.court.toLowerCase()!=="da assegnare" && e.court===r.court){
+          r.conflict=true;
+          r.conflictReason=`Campo già occupato ${e.time}-${eEnd}`;
+          break;
+        }
+      }
+    }
+  }
+
+  for(const r of rows){
+    r.status=r.errors.length?"error":r.conflict?"conflict":"ready";
+  }
+}
+
+function renderPreview(){
+  const body=$("previewBody");
+  body.innerHTML=parsedRows.map(r=>{
+    const pill=r.status==="ready"
+      ? `<span class="pill ok">PRONTA</span>`
+      : r.status==="conflict"
+        ? `<span class="pill warn">CONFLITTO</span>`
+        : `<span class="pill bad">ERRORE</span>`;
+    const detail=r.errors.length?r.errors.join("; "):r.conflictReason||r.note||"";
+    return `<tr>
+      <td>${pill}</td>
+      <td>${esc(r.date)}</td>
+      <td>${esc(r.start)}–${esc(r.end)}</td>
+      <td>${esc(r.centerLabel)}</td>
+      <td>${esc(r.court||"Da assegnare")}</td>
+      <td>${esc(r.activityType)}</td>
+      <td>${esc(r.title)}</td>
+      <td>${esc(r.capacity)}</td>
+      <td>${esc(r.price)} €</td>
+      <td>${esc(detail)}</td>
+    </tr>`;
+  }).join("");
+
+  const ready=parsedRows.filter(r=>r.status==="ready").length;
+  const conflicts=parsedRows.filter(r=>r.status==="conflict").length;
+  const errors=parsedRows.filter(r=>r.status==="error").length;
+
+  $("kRows").textContent=parsedRows.length;
+  $("kReady").textContent=ready;
+  $("kConflicts").textContent=conflicts;
+  $("kErrors").textContent=errors;
+  $("importBtn").disabled=ready===0;
+
+  const msg=$("message");
+  msg.className=`status ${errors?"bad":conflicts?"warn":"ok"}`;
+  msg.textContent=errors
+    ? "Ci sono righe con errori: verranno escluse dall'importazione."
+    : conflicts
+      ? "Controllo completato: le righe in conflitto verranno escluse."
+      : "Controllo completato: tutte le righe sono pronte.";
+}
+
+async function loadExistingLessons(){
+  const snap=await getDocs(query(collection(db,"activities"),where("module","==","courses_lessons_v1")));
+  existingLessons=snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+async function readExcel(file){
+  const data=await file.arrayBuffer();
+  const wb=window.XLSX.read(data,{type:"array",cellDates:true});
+  const sheetName=wb.SheetNames.includes("Disponibilita")?"Disponibilita":wb.SheetNames[0];
+  if(!sheetName)throw new Error("Il file non contiene fogli.");
+  const rows=window.XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{defval:"",raw:true});
+  if(!rows.length)throw new Error("Il foglio è vuoto.");
+
+  await loadExistingLessons();
+  parsedRows=rows.map((r,i)=>normalizeRow(r,i));
+  detectConflicts(parsedRows);
+  $("summary").classList.remove("hidden");
+  $("results").classList.add("hidden");
+  renderPreview();
+}
+
+function pricingRule(r){
+  if(r.activityType==="Classe tecnica")return `${r.price} € / persona`;
+  if(r.activityType==="Lezione X2")return `${r.price} € / persona oppure pacchetto X2`;
+  return `${r.price} € singola oppure pacchetto X1`;
+}
+
+function bookingLink(id){
+  const base=location.href.replace(/import-disponibilita\.html.*$/,"");
+  return `${base}?lesson=${encodeURIComponent(id)}`;
+}
+
+async function importReadyRows(){
+  const ready=parsedRows.filter(r=>r.status==="ready");
+  if(!ready.length)return;
+
+  if(!confirm(`Importare ${ready.length} lezioni? Ogni riga avrà un nuovo ID e un nuovo link PRENOTA.`))return;
+
+  $("importBtn").disabled=true;
+  $("importBtn").textContent="Importazione…";
+
+  const results=[];
+  const batchId=`excel_${Date.now()}`;
+
+  for(const r of ready){
+    try{
+      const ref=await addDoc(collection(db,"activities"),{
+        module:"courses_lessons_v1",
+        clubId:r.clubId,
+        court:r.court && r.court.toLowerCase()!=="da assegnare" ? r.court : null,
+        activityType:r.activityType,
+        type:r.type,
+        title:r.title,
+        instructorId:"francesco-lignola",
+        instructorName:r.instructorName,
+        instructorTitle:r.instructorTitle,
+        date:r.date,
+        time:r.start,
+        endTime:r.end,
+        duration:minutes(r.end)-minutes(r.start),
+        capacity:r.capacity,
+        booked:0,
+        pricePerPerson:r.price,
+        pricingRule:pricingRule(r),
+        status:r.pubblica?"approved":"draft",
+        bookingState:"available",
+        visibility:r.pubblica?"public":"private",
+        source:"excel_import",
+        importBatchId:batchId,
+        importRow:r.rowNumber,
+        note:r.note||"",
+        createdBy:currentUser.uid,
+        createdAt:serverTimestamp()
+      });
+      results.push({ok:true,row:r,id:ref.id,link:bookingLink(ref.id)});
+      r.status="imported";
+    }catch(e){
+      results.push({ok:false,row:r,error:e.message||"Errore"});
+    }
+  }
+
+  $("resultsList").innerHTML=results.map(x=>x.ok
+    ? `<div class="status ok"><b>${esc(x.row.date)} ${esc(x.row.start)} · ${esc(x.row.title)}</b><br><a href="${esc(x.link)}" target="_blank">${esc(x.link)}</a></div>`
+    : `<div class="status bad"><b>Riga ${x.row.rowNumber}</b> · ${esc(x.error)}</div>`
+  ).join("");
+  $("results").classList.remove("hidden");
+  $("importBtn").textContent="Importa lezioni pronte";
+  renderPreview();
+}
+
+onAuthStateChanged(auth,async user=>{
+  currentUser=user;
+  if(!user || user.isAnonymous){
+    $("authCard").innerHTML=`<div class="bad status"><b>Accesso Admin richiesto.</b><br>Apri prima la <a href="./">V11</a>, accedi come Admin e poi torna su questa pagina.</div>`;
+    return;
+  }
+
+  try{
+    const p=await getDoc(doc(db,"profiles",user.uid));
+    if(!p.exists() || p.data().role!=="admin"){
+      $("authCard").innerHTML=`<div class="bad status"><b>Accesso non autorizzato.</b><br>Questa pagina è riservata all'Admin.</div>`;
+      return;
+    }
+    $("authCard").innerHTML=`<div class="ok status"><b>Admin verificato.</b> Puoi importare le lezioni.</div>`;
+    $("app").classList.remove("hidden");
+  }catch(e){
+    $("authCard").innerHTML=`<div class="bad status">Errore verifica Admin: ${esc(e.message||"errore")}</div>`;
+  }
+});
+
+$("fileInput").addEventListener("change",async e=>{
+  const file=e.target.files?.[0];
+  if(!file)return;
+  $("clearBtn").disabled=false;
+  $("message").textContent="Lettura e controllo del file…";
+  try{
+    await readExcel(file);
+  }catch(err){
+    alert(err.message||"Impossibile leggere il file.");
+  }
+});
+
+$("clearBtn").onclick=()=>{
+  parsedRows=[];
+  existingLessons=[];
+  $("fileInput").value="";
+  $("summary").classList.add("hidden");
+  $("results").classList.add("hidden");
+  $("clearBtn").disabled=true;
+};
+
+$("importBtn").onclick=importReadyRows;
+</script>
+</body>
+</html>
