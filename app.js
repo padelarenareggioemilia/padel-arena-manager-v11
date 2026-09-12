@@ -919,8 +919,12 @@ async function adminLessons(){
     </div>
     <div class="actions"><button id="seedLessonsBtn" class="primary">Carica programmazione 14–26/9</button><button id="refreshLessonsBtn" class="btn">Aggiorna</button></div>
     <div class="actions"><button id="selectAllLessonsBtn" class="btn">Seleziona tutte</button><button id="clearLessonsBtn" class="btn">Deseleziona</button></div>
-    <button id="shareSelectedLessonsBtn" class="primary" style="width:100%;margin-top:8px">📲 Condividi lezioni selezionate su WhatsApp</button>
-    <div class="tiny muted" style="margin-top:8px">Nel messaggio il giocatore apre un unico link e può scegliere una o più lezioni a cui iscriversi.</div>
+    <div class="actions" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button id="shareSelectedWhatsAppBtn" class="primary" style="flex:1;min-width:180px">📲 WhatsApp</button>
+      <button id="shareSelectedWhatsAppBusinessBtn" class="primary" style="flex:1;min-width:180px">💼 WhatsApp Business</button>
+      <button id="copySelectedMessageBtn" class="btn" style="flex:1;min-width:180px">📋 Copia messaggio</button>
+    </div>
+    <div class="tiny muted" style="margin-top:8px">Il messaggio include un link PRENOTA sotto ogni lezione e il link finale per prenotarne più di una. Se il dispositivo non apre direttamente WhatsApp Business, usa “Copia messaggio”.</div>
   </div>
   <div id="adminLessonList" class="list"><div class="card muted">Caricamento…</div></div>`;
 
@@ -933,7 +937,9 @@ async function adminLessons(){
   $("refreshLessonsBtn").onclick=loadAdminLessons;
   $("selectAllLessonsBtn").onclick=()=>document.querySelectorAll(".lesson-select").forEach(x=>x.checked=true);
   $("clearLessonsBtn").onclick=()=>document.querySelectorAll(".lesson-select").forEach(x=>x.checked=false);
-  $("shareSelectedLessonsBtn").onclick=shareSelectedLessons;
+  $("shareSelectedWhatsAppBtn").onclick=()=>shareSelectedLessons("whatsapp");
+  $("shareSelectedWhatsAppBusinessBtn").onclick=()=>shareSelectedLessons("business");
+  $("copySelectedMessageBtn").onclick=()=>shareSelectedLessons("copy");
   loadAdminLessons();
 }
 
@@ -1024,9 +1030,9 @@ function selectedLessonIds(){
   return [...document.querySelectorAll(".lesson-select:checked")].map(x=>x.dataset.lessonId);
 }
 
-async function shareSelectedLessons(){
+function buildSelectedLessonsMessage(){
   const ids=selectedLessonIds();
-  if(!ids.length)return alert("Seleziona almeno una lezione.");
+  if(!ids.length)throw new Error("Seleziona almeno una lezione.");
 
   const selected=S.adminLessons.filter(x=>ids.includes(x.id));
   const blocks=selected.map(x=>{
@@ -1040,7 +1046,8 @@ ${x.activityType==="Classe tecnica"?"🎯":"👤"} *${x.title}*
   }).join("\n\n");
 
   const multiLink=`${location.origin}${location.pathname}?lessons=${encodeURIComponent(ids.join(","))}`;
-  const message=`🎾 *DISPONIBILITÀ LEZIONI PADEL*
+
+  return `🎾 *DISPONIBILITÀ LEZIONI PADEL*
 *Francesco Lignola – Istruttore Nazionale AICS*
 
 Scegli la lezione che ti interessa e premi direttamente PRENOTA 👇
@@ -1051,6 +1058,48 @@ Vuoi prenotare più lezioni insieme?
 👉 ${multiLink}
 
 ℹ️ Nessun account o password: alla prima prenotazione inserisci i tuoi dati una sola volta. Puoi cancellarti autonomamente fino a 48 ore prima della lezione.`;
+}
+
+async function copyShareMessage(message){
+  try{
+    await navigator.clipboard.writeText(message);
+    alert("Messaggio copiato. Ora puoi incollarlo in WhatsApp Business o dove preferisci.");
+  }catch(e){
+    const ta=document.createElement("textarea");
+    ta.value=message;
+    ta.style.position="fixed";
+    ta.style.opacity="0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    alert("Messaggio copiato. Ora puoi incollarlo in WhatsApp Business o dove preferisci.");
+  }
+}
+
+async function shareSelectedLessons(target="whatsapp"){
+  let message;
+  try{
+    message=buildSelectedLessonsMessage();
+  }catch(e){
+    return alert(e.message||"Seleziona almeno una lezione.");
+  }
+
+  if(target==="copy"){
+    await copyShareMessage(message);
+    return;
+  }
+
+  if(target==="business"){
+    // Deep link dedicato all'app WhatsApp Business.
+    // Su alcuni dispositivi/browser il sistema può comunque proporre l'app disponibile.
+    const businessUrl=`whatsapp-business://send?text=${encodeURIComponent(message)}`;
+    window.location.href=businessUrl;
+
+    // Copia anche il testo come fallback pratico, senza interrompere l'apertura dell'app.
+    try{await navigator.clipboard.writeText(message)}catch(e){}
+    return;
+  }
 
   window.open(`https://wa.me/?text=${encodeURIComponent(message)}`,"_blank");
 }
